@@ -51,6 +51,11 @@ export async function getWorkspaceIdentity(): Promise<WorkspaceIdentity | null> 
 
 export async function requireWorkspaceIdentity() {
   const identity = await getWorkspaceIdentity();
+  if (!identity && appConfig.supabaseConfigured) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) redirect("/onboarding");
+  }
   if (!identity) redirect("/login");
   return identity;
 }
