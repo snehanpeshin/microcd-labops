@@ -72,7 +72,13 @@ const inspectionSchema = z.object({ number: z.string().min(2).max(80), lotId: z.
 export async function createInspection(formData: FormData) {
   const { identity, supabase } = await context("suppliers:write");
   const input = inspectionSchema.parse({ number:textField(formData,"number"),lotId:textField(formData,"lotId"),componentId:textField(formData,"componentId"),date:textField(formData,"date"),sampleSize:textField(formData,"sampleSize"),outcome:textField(formData,"outcome"),disposition:textField(formData,"disposition"),defects:textField(formData,"defects") });
-  await Promise.all([verifyReference("lots",input.lotId,identity.organizationId),verifyReference("components",input.componentId,identity.organizationId)]);
+  const admin = createAdminClient();
+  const [lot, component] = await Promise.all([
+    admin.from("lots").select("id,component_id").eq("id",input.lotId).eq("organization_id",identity.organizationId).maybeSingle(),
+    admin.from("components").select("id").eq("id",input.componentId).eq("organization_id",identity.organizationId).maybeSingle(),
+  ]);
+  if (lot.error || !lot.data || component.error || !component.data) throw new Error("The lot or component was not found in this workspace.");
+  if (lot.data.component_id !== input.componentId) throw new Error("The inspection component must match the component recorded on the lot.");
   const { data, error } = await supabase.from("inspections").insert({ organization_id: identity.organizationId, inspection_number: input.number, lot_id: input.lotId, component_id: input.componentId, inspector_id: identity.userId, inspected_at: input.date, sample_size: input.sampleSize, outcome: input.outcome, disposition: input.disposition, defects: input.defects }).select("id").single();
   if (error) throw new Error("Inspection could not be recorded.");
   const lotUpdate = await supabase.from("lots").update({ inspection_status: input.outcome, disposition: input.disposition }).eq("id",input.lotId).eq("organization_id",identity.organizationId);
@@ -117,35 +123,19 @@ async function loadMutableReport(reportId: string, organizationId: string) {
 }
 
 export async function submitReportForReview(formData: FormData) {
-  const { identity } = await context("reports:write");
+  const { supabase } = await context("reports:write");
   const input = reportTransitionSchema.parse({ reportId: textField(formData, "reportId"), comment: textField(formData, "comment") });
-  const report = await loadMutableReport(input.reportId, identity.organizationId);
-  if (!["draft", "in_progress", "changes_requested"].includes(report.status)) throw new Error("This report cannot be submitted from its current state.");
-  const admin = createAdminClient();
-  const { error } = await admin.from("reports").update({ status: "ready_for_review", submitted_at: new Date().toISOString(), reviewer_id: null }).eq("id", report.id).eq("organization_id", identity.organizationId);
+  const { error } = await supabase.rpc("submit_report_for_review", { target_report_id: input.reportId, submission_comment: input.comment });
   if (error) throw new Error("Report could not be submitted for review.");
-  await admin.from("report_reviews").insert({ organization_id: identity.organizationId, report_id: report.id, reviewer_id: identity.userId, decision: "comment", comment: input.comment || "Submitted for review", revision: report.revision });
-  await recordActivity(identity.organizationId, identity.userId, "report_submitted", "Report", report.id, `Report ${report.number} revision ${report.revision} submitted for review`);
-  revalidatePath(`/app/reports/${report.id}`); revalidatePath("/app/reports");
+  revalidatePath(`/app/reports/${input.reportId}`); revalidatePath("/app/reports");
 }
 
 export async function reviewReport(formData: FormData) {
-  const { identity } = await context("reports:review");
+  const { supabase } = await context("reports:review");
   const input = reportTransitionSchema.extend({ decision: z.enum(["approved", "changes_requested"]), comment: z.string().trim().min(10).max(4000) }).parse({ reportId: textField(formData, "reportId"), decision: textField(formData, "decision"), comment: textField(formData, "comment") });
-  const report = await loadMutableReport(input.reportId, identity.organizationId);
-  if (report.status !== "ready_for_review") throw new Error("Only reports ready for review can receive a decision.");
-  if (report.author_id === identity.userId) throw new Error("The report author cannot approve their own report.");
-  const now = new Date().toISOString();
-  const admin = createAdminClient();
-  const update = input.decision === "approved"
-    ? { status: "approved", reviewer_id: identity.userId, approved_at: now, approved_by: identity.userId, locked_at: now }
-    : { status: "changes_requested", reviewer_id: identity.userId, approved_at: null, approved_by: null, locked_at: null };
-  const { error } = await admin.from("reports").update(update).eq("id", report.id).eq("organization_id", identity.organizationId).eq("status", "ready_for_review");
+  const { error } = await supabase.rpc("review_report", { target_report_id: input.reportId, review_decision: input.decision, review_comment: input.comment });
   if (error) throw new Error("The review decision could not be recorded.");
-  const review = await admin.from("report_reviews").insert({ organization_id: identity.organizationId, report_id: report.id, reviewer_id: identity.userId, decision: input.decision, comment: input.comment, revision: report.revision });
-  if (review.error) throw new Error("The report changed state, but the review record failed. Contact support.");
-  await recordActivity(identity.organizationId, identity.userId, `report_${input.decision}`, "Report", report.id, `Report ${report.number} revision ${report.revision}: ${input.decision.replace("_", " ")}`);
-  revalidatePath(`/app/reports/${report.id}`); revalidatePath("/app/reports");
+  revalidatePath(`/app/reports/${input.reportId}`); revalidatePath("/app/reports");
 }
 
 function nextRevision(current: string) {

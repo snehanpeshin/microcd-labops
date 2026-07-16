@@ -21,8 +21,12 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (!can(identity.role, "members:manage")) return NextResponse.json({ error: "Administrator permission required" }, { status: 403 });
   const { id } = await params;
   const admin = createAdminClient();
-  const result = await admin.from("attachments").select("storage_path").eq("id", id).eq("organization_id", identity.organizationId).maybeSingle();
+  const result = await admin.from("attachments").select("storage_path,record_type,record_id").eq("id", id).eq("organization_id", identity.organizationId).maybeSingle();
   if (result.error || !result.data) return NextResponse.json({ error: "File not found" }, { status: 404 });
+  if (result.data.record_type === "report") {
+    const report = await admin.from("reports").select("status").eq("id", result.data.record_id).eq("organization_id", identity.organizationId).maybeSingle();
+    if (report.data?.status === "approved") return NextResponse.json({ error: "Approved report evidence is immutable" }, { status: 409 });
+  }
   const removed = await admin.storage.from("labops-files").remove([result.data.storage_path]);
   if (removed.error) return NextResponse.json({ error: "File deletion failed" }, { status: 500 });
   const deleted = await admin.from("attachments").delete().eq("id", id).eq("organization_id", identity.organizationId);

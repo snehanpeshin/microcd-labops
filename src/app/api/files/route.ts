@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getWorkspaceIdentity } from "@/lib/auth";
-import { can } from "@/lib/security/permissions";
+import { can, type Permission } from "@/lib/security/permissions";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { BetaFileScanner, validateUpload } from "@/lib/storage/file-policy";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -16,7 +16,6 @@ export async function POST(request: Request) {
   const identity = await getWorkspaceIdentity();
   if (!identity) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   if (identity.demo) return NextResponse.json({ error: "Uploads are unavailable in the fictional demo" }, { status: 403 });
-  if (!can(identity.role, "reports:write") && !can(identity.role, "suppliers:write")) return NextResponse.json({ error: "Insufficient permission" }, { status: 403 });
 
   const rateLimit = await enforceRateLimit(`${identity.organizationId}:${identity.userId}`, "file_upload", 20, 3600);
   if (!rateLimit.allowed) return NextResponse.json({ error: "Upload limit reached. Try again later." }, { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } });
@@ -25,10 +24,13 @@ export async function POST(request: Request) {
   const parsed = recordSchema.safeParse({ recordType: body.get("recordType"), recordId: body.get("recordId") });
   const file = body.get("file");
   if (!parsed.success || !(file instanceof File)) return NextResponse.json({ error: "Invalid upload request" }, { status: 400 });
+  const requiredPermission: Permission = parsed.data.recordType === "report" ? "reports:write" : "suppliers:write";
+  if (!can(identity.role, requiredPermission)) return NextResponse.json({ error: "Insufficient permission for this record type" }, { status: 403 });
 
   const admin = createAdminClient();
-  const record = await admin.from(recordTables[parsed.data.recordType]).select("id").eq("id", parsed.data.recordId).eq("organization_id", identity.organizationId).maybeSingle();
+  const record = await admin.from(recordTables[parsed.data.recordType]).select(parsed.data.recordType === "report" ? "id,status" : "id").eq("id", parsed.data.recordId).eq("organization_id", identity.organizationId).maybeSingle();
   if (record.error || !record.data) return NextResponse.json({ error: "Record not found" }, { status: 404 });
+  if (parsed.data.recordType === "report" && "status" in record.data && record.data.status === "approved") return NextResponse.json({ error: "Approved report evidence is immutable" }, { status: 409 });
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   let validated: ReturnType<typeof validateUpload>;

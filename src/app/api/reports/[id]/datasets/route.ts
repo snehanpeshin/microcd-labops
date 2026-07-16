@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Papa from "papaparse";
 import { z } from "zod";
 import { getWorkspaceIdentity } from "@/lib/auth";
-import { summarize } from "@/lib/reports/calculations";
+import { parseNumericValue, summarize } from "@/lib/reports/calculations";
 import { can } from "@/lib/security/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -27,15 +27,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (downloaded.error) return NextResponse.json({ error: "Evidence file could not be read" }, { status: 500 });
   const csv = Papa.parse<CsvRow>(await downloaded.data.text(), { header: true, skipEmptyLines: true });
   if (csv.errors.length) return NextResponse.json({ error: "CSV contains parsing errors" }, { status: 400 });
+  if (csv.data.length > 100_000) return NextResponse.json({ error: "CSV exceeds the 100,000-row analysis limit" }, { status: 413 });
   if (!csv.meta.fields?.includes(parsed.data.selectedColumn)) return NextResponse.json({ error: "Selected column is not present in the uploaded CSV" }, { status: 400 });
-  const values = csv.data.map((row) => Number(row[parsed.data.selectedColumn])).filter(Number.isFinite);
+  const values = csv.data.map((row) => parseNumericValue(row[parsed.data.selectedColumn])).filter((value): value is number => value !== null);
   if (!values.length) return NextResponse.json({ error: "Selected column contains no numeric values" }, { status: 400 });
   const statistics = summarize(values);
   const dataset = await admin.from("report_datasets").insert({ organization_id: identity.organizationId, report_id: reportId, attachment_id: attachment.data.id, original_name: attachment.data.file_name, selected_column: parsed.data.selectedColumn, row_count: csv.data.length, mapping: { measurement: parsed.data.selectedColumn }, created_by: identity.userId }).select("id").single();
+  if (dataset.error?.code === "23505") return NextResponse.json({ error: "This source column has already been analyzed for the report" }, { status: 409 });
   if (dataset.error) return NextResponse.json({ error: "Dataset metadata could not be saved" }, { status: 500 });
   const rows = Object.entries(statistics).map(([name, value]) => ({ organization_id: identity.organizationId, report_id: reportId, dataset_id: dataset.data.id, measurement: parsed.data.selectedColumn, statistic_name: name, statistic_value: value, calculation_version: "summary-v1", created_by: identity.userId }));
   const stored = await admin.from("report_statistics").insert(rows);
-  if (stored.error) return NextResponse.json({ error: "Calculated statistics could not be saved" }, { status: 500 });
+  if (stored.error) {
+    await admin.from("report_datasets").delete().eq("id", dataset.data.id).eq("organization_id", identity.organizationId);
+    return NextResponse.json({ error: "Calculated statistics could not be saved" }, { status: 500 });
+  }
   await admin.from("activity_log").insert({ organization_id: identity.organizationId, actor_id: identity.userId, action: "dataset_analyzed", record_type: "Report", record_id: reportId, summary: `Dataset analyzed using ${parsed.data.selectedColumn}` });
   return NextResponse.json({ datasetId: dataset.data.id, statistics }, { status: 201 });
 }

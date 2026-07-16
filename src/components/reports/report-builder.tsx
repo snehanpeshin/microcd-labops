@@ -7,7 +7,7 @@ import { AlertCircle, Check, FileSpreadsheet, Sparkles } from "lucide-react";
 import { createReportDraft } from "@/app/(workspace)/app/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { evaluateCriterion, summarize, type SummaryStatistics } from "@/lib/reports/calculations";
+import { evaluateCriterion, parseNumericValue, summarize, type SummaryStatistics } from "@/lib/reports/calculations";
 import type { Project } from "@/lib/types";
 
 type Row = Record<string, string>;
@@ -28,7 +28,7 @@ export function ReportBuilder({ projects, demo }: { projects: Project[]; demo: b
   const [maximum, setMaximum] = useState("18");
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
-  const values = useMemo(() => rows.map((row) => Number(row[measurement])).filter(Number.isFinite), [rows, measurement]);
+  const values = useMemo(() => rows.map((row) => parseNumericValue(row[measurement])).filter((value): value is number => value !== null), [rows, measurement]);
   const stats: SummaryStatistics | null = useMemo(() => { try { return values.length ? summarize(values) : null; } catch { return null; } }, [values]);
   const criterionPass = stats ? evaluateCriterion(stats.mean, { operator: "<=", maximum: Number(maximum) }) : false;
 
@@ -38,7 +38,7 @@ export function ReportBuilder({ projects, demo }: { projects: Project[]; demo: b
     Papa.parse<Row>(file, { header: true, skipEmptyLines: true, complete: ({ data, meta, errors }) => {
       if (errors.length || !meta.fields?.length) { setError("The CSV could not be read. Confirm it has a header row and comma-separated values."); return; }
       setRows(data); setColumns(meta.fields);
-      setMeasurement(meta.fields.find((field) => data.some((row) => Number.isFinite(Number(row[field])))) ?? "");
+      setMeasurement(meta.fields.find((field) => data.some((row) => parseNumericValue(row[field]) !== null)) ?? "");
     }, error: () => setError("The selected file could not be read.") });
   }
 
