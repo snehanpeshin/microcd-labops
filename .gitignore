@@ -41,3 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 tsconfig.cloud-placeholder.json
+
+# local Supabase CLI link and connection state
+/supabase/.temp/
