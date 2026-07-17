@@ -10,10 +10,10 @@ export function LeadForm() {
     setMessage("");
     try {
       const response = await fetch("/api/leads", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.fromEntries(formData)) });
-      const result = await response.json().catch(() => ({})) as { error?: string };
+      const result = await response.json().catch(() => ({})) as { error?: string; confirmationEmail?: boolean };
       if (!response.ok) throw new Error(result.error || "Submission is unavailable. Please email info@microcdlabs.com.");
       setState("sent");
-      setMessage("Request received. We will reply by email.");
+      setMessage(result.confirmationEmail ? "Request received. A confirmation email is on its way." : "Request received. We will reply by email.");
     } catch (cause) {
       setState("error");
       setMessage(cause instanceof Error ? cause.message : "Submission is unavailable. Please email info@microcdlabs.com.");

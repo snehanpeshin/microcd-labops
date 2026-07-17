@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
+import { buildLeadConfirmation } from "@/lib/email/lead-confirmation";
 
 const schema = z.object({ name: z.string().min(2).max(100), email: z.string().email().max(254), organization: z.string().max(160).default(""), message: z.string().min(20).max(4000), website: z.string().max(0).optional() });
 export async function POST(request: Request) {
@@ -22,11 +23,23 @@ export async function POST(request: Request) {
     }
     const { error } = await createAdminClient().from("leads").insert({ name: input.data.name, email: input.data.email, organization_name: input.data.organization, message: input.data.message });
     if (error) return NextResponse.json({ error: "We could not save this request. Please email info@microcdlabs.com." }, { status: 500 });
-    if (process.env.RESEND_API_KEY && process.env.LEAD_NOTIFICATION_EMAIL) {
-      const result = await new Resend(process.env.RESEND_API_KEY).emails.send({ from: process.env.RESEND_FROM_EMAIL ?? "MicroCD LabOps <notifications@microcdlabs.com>", to: process.env.LEAD_NOTIFICATION_EMAIL, replyTo: input.data.email, subject: `LabOps request from ${input.data.name}`, text: `Organization: ${input.data.organization || "Not provided"}\n\n${input.data.message}` });
+    let confirmationEmail = false;
+    if (process.env.RESEND_API_KEY) {
+      const companyEmail = process.env.LEAD_NOTIFICATION_EMAIL ?? "info@microcdlabs.com";
+      const confirmation = buildLeadConfirmation(input.data);
+      const result = await new Resend(process.env.RESEND_API_KEY).emails.send({
+        from: process.env.RESEND_FROM_EMAIL ?? "MicroCD Labs <info@microcdlabs.com>",
+        to: input.data.email,
+        cc: input.data.email.toLowerCase() === companyEmail.toLowerCase() ? undefined : companyEmail,
+        replyTo: companyEmail,
+        subject: confirmation.subject,
+        text: confirmation.text,
+        html: confirmation.html,
+      });
       if (result.error) console.error("Lead notification could not be sent", result.error.name);
+      confirmationEmail = !result.error;
     }
-    return NextResponse.json({ received: true }, { status: 201 });
+    return NextResponse.json({ received: true, confirmationEmail }, { status: 201 });
   } catch (cause) {
     console.error("Lead request failed", cause instanceof Error ? cause.message : "Unknown server error");
     return NextResponse.json({ error: "Pilot requests are temporarily unavailable. Please email info@microcdlabs.com." }, { status: 500 });
