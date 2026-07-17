@@ -6,7 +6,7 @@ frontend:
         - npm ci
     build:
       commands:
-        - env | grep -e NEXT_PUBLIC_ -e SUPABASE_SERVICE_ROLE_KEY >> .env.production
+        - env | grep -e NEXT_PUBLIC_ -e SUPABASE_SERVICE_ROLE_KEY -e RESEND_ -e LEAD_NOTIFICATION_EMAIL >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
