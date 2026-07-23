@@ -2,6 +2,13 @@ import Link from "next/link";
 import { AuthErrorNotice } from "@/components/auth/auth-error-notice";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Brand } from "@/components/brand";
+import { privatePageMetadata } from "@/lib/seo";
+
+export const metadata = privatePageMetadata(
+  "Sign In",
+  "Sign in to an organization-scoped MicroCD LabOps engineering workspace.",
+  "/login",
+);
 
 type LoginSearchParams = {
   next?: string;

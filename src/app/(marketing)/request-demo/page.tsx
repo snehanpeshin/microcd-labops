@@ -1,2 +1,9 @@
 import { LeadForm } from "@/components/marketing/lead-form";
+import { marketingMetadata } from "@/lib/seo";
+
+export const metadata = marketingMetadata({
+  title: "Request a LabOps Pilot",
+  description: "Discuss a focused MicroCD LabOps pilot for an engineering report, supplier qualification, or component traceability workflow.",
+  path: "/request-demo",
+});
 export default function RequestDemoPage() { return <main className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-[.75fr_1.25fr]"><div><p className="text-sm font-semibold uppercase tracking-wide text-teal-800">Pilot program</p><h1 className="mt-3 text-4xl font-semibold text-slate-950">Evaluate LabOps with a real development workflow.</h1><p className="mt-5 text-base leading-7 text-slate-600">A focused pilot maps one engineering report or supplier traceability workflow. We will not ask for patient data or unsupported compliance claims.</p><ul className="mt-7 space-y-3 text-sm text-slate-700"><li>Define one measurable operational outcome</li><li>Configure roles and a fictional or non-sensitive sample project</li><li>Review gaps before any production-data decision</li></ul></div><div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"><h2 className="text-xl font-semibold text-slate-950">Tell us about your workflow</h2><p className="mt-2 mb-6 text-sm text-slate-600">Do not include confidential details in this first message.</p><LeadForm /></div></main>; }

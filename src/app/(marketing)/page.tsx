@@ -1,5 +1,12 @@
 import { ArrowRight, CheckCircle2, ClipboardCheck, FileBarChart, FileText, PackageCheck, SearchCheck, ShieldCheck } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
+import { marketingMetadata } from "@/lib/seo";
+
+export const metadata = marketingMetadata({
+  title: "Engineering Documentation & Traceability",
+  description: "Organize engineering reports, test data, supplier qualification, incoming inspection, and component traceability in one practical workspace.",
+  path: "/",
+});
 
 const capabilities = [
   { icon: FileText, title: "Evidence-linked engineering reports", body: "Build structured test, verification, failure-analysis, inspection, and design-review records without starting from a blank document." },
