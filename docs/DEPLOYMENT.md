@@ -7,12 +7,19 @@
 3. Create a Vercel project with this repository as its root.
 4. Add every variable from `.env.example`; keep service-role and provider keys scoped to server environments.
 5. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS URL.
-6. Add the canonical URL and `/auth/callback` in Supabase Auth URL configuration.
-7. Create Stripe products/prices and configure the signed webhook endpoint.
-8. Configure Supabase Auth email limits, CAPTCHA, redirect allowlists, and leaked-password protection. Do not rely on UI-only throttling.
-9. Configure private storage malware scanning or quarantine. `BetaFileScanner` is policy validation only and is not a malware scanner.
-10. Deploy with demo mode enabled, run the staging tenant-isolation protocol, Stripe webhook replay tests, invitation lifecycle, and restore drill.
-11. Set `NEXT_PUBLIC_DEMO_MODE=false` only after the release owner signs the launch checklist.
+6. In Supabase **Authentication → URL Configuration**, set the Site URL to `https://labops.microcdlabs.com` and add `https://labops.microcdlabs.com/auth/callback` to Redirect URLs. Keep the Amplify callback URL only if that hostname is still used for testing.
+7. In Supabase **Authentication → Email Templates → Confirm sign up**, use a server-verifiable token-hash link:
+
+   ```html
+   <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/onboarding">Confirm your email</a>
+   ```
+
+   This avoids relying on a PKCE verifier from the browser where signup began. Send a fresh confirmation email after changing the template; previously issued links keep their old format.
+8. Create Stripe products/prices and configure the signed webhook endpoint.
+9. Configure Supabase Auth email limits, CAPTCHA, redirect allowlists, and leaked-password protection. Do not rely on UI-only throttling.
+10. Configure private storage malware scanning or quarantine. `BetaFileScanner` is policy validation only and is not a malware scanner.
+11. Deploy with demo mode enabled, run the staging tenant-isolation protocol, Stripe webhook replay tests, invitation lifecycle, and restore drill.
+12. Set `NEXT_PUBLIC_DEMO_MODE=false` only after the release owner signs the launch checklist.
 
 ## Verification commands
 

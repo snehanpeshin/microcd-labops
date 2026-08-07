@@ -1,24 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { publicAuthOrigin, safeAuthNext } from "@/lib/auth/redirects";
 import { createClient } from "@/lib/supabase/server";
-
-function safeNext(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") && !value.includes("\\") ? value : "/onboarding";
-}
-
-function publicOrigin(request: Request, requestUrl: URL) {
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const host = forwardedHost ?? request.headers.get("host")?.split(",")[0]?.trim();
-  const trustedHost = host && (host === "labops.microcdlabs.com" || host.endsWith(".amplifyapp.com"));
-  if (trustedHost) {
-    const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-    return `${forwardedProtocol === "http" ? "http" : "https"}://${host}`;
-  }
-
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return new URL(configured).origin;
-  return requestUrl.origin;
-}
 
 function failedRedirect(origin: string, code: string, description: string) {
   const target = new URL("/login", origin);
@@ -33,8 +16,8 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type") as EmailOtpType | null;
-  const next = safeNext(url.searchParams.get("next"));
-  const origin = publicOrigin(request, url);
+  const next = safeAuthNext(url.searchParams.get("next"));
+  const origin = publicAuthOrigin(request);
   const supabase = await createClient();
 
   if (code) {

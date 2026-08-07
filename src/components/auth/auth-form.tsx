@@ -8,11 +8,6 @@ import { createClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot" | "resend";
 
-function confirmationRedirect(next: string) {
-  const destination = next.startsWith("/") && !next.startsWith("//") ? next : "/onboarding";
-  return `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`;
-}
-
 export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -29,19 +24,31 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
         const result = await supabase.auth.signInWithPassword({ email, password });
         if (result.error) throw result.error;
         router.push(next); router.refresh();
-      } else if (mode === "signup") {
-        const fullName = String(formData.get("fullName") ?? "").trim();
-        const result = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName }, emailRedirectTo: confirmationRedirect(next === "/app" ? "/onboarding" : next) } });
-        if (result.error) throw result.error;
-        setMessage("Check your email to confirm the account, then return to set up your workspace.");
-      } else if (mode === "forgot") {
-        const result = await supabase.auth.resetPasswordForEmail(email, { redirectTo: confirmationRedirect("/reset-password") });
-        if (result.error) throw result.error;
-        setMessage("If an account exists for that address, a reset link has been sent.");
       } else {
-        const result = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: confirmationRedirect("/onboarding") } });
-        if (result.error) throw result.error;
-        setMessage("A new confirmation link has been sent. Use the newest email; earlier links may no longer work.");
+        const action = mode === "signup" ? "signup" : mode === "forgot" ? "recovery" : "resend";
+        const response = await fetch("/api/auth/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action,
+            email,
+            password: mode === "signup" ? password : undefined,
+            fullName: mode === "signup" ? String(formData.get("fullName") ?? "").trim() : undefined,
+            next: mode === "signup" ? (next === "/app" ? "/onboarding" : next) : "/onboarding",
+          }),
+        });
+        const result = await response.json().catch(() => ({})) as { error?: string; requiresConfirmation?: boolean };
+        if (!response.ok) throw new Error(result.error ?? "The email request could not be completed.");
+        if (mode === "signup" && result.requiresConfirmation === false) {
+          router.push(next === "/app" ? "/onboarding" : next);
+          router.refresh();
+          return;
+        }
+        setMessage(mode === "signup"
+          ? "Check your email to confirm the account, then return to set up your workspace."
+          : mode === "forgot"
+            ? "If an account exists for that address, a reset link has been sent."
+            : "A new confirmation link has been sent. Use the newest email; earlier links may no longer work.");
       }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The request could not be completed."); }
     finally { setLoading(false); }

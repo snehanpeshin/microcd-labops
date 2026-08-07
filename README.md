@@ -23,7 +23,7 @@ Open `http://localhost:3000`. With `NEXT_PUBLIC_DEMO_MODE=true` and no Supabase 
 
 1. Create a new Supabase project and run `supabase/migrations/202607140001_initial_labops.sql` in the SQL editor or with the Supabase CLI.
 2. Set the Supabase URL, publishable key, and server-only service-role key.
-3. Configure the Auth site URL and redirect URL: `https://YOUR_DOMAIN/auth/callback`.
+3. Set the Supabase Auth Site URL to the canonical application origin and allow `https://YOUR_DOMAIN/auth/callback` as a redirect URL. Update the Confirm sign up email template to link to `/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/onboarding`; see [deployment](docs/DEPLOYMENT.md).
 4. Create Stripe recurring Team and Lab prices. Set their IDs and the secret key.
 5. Add a Stripe webhook at `https://YOUR_DOMAIN/api/billing/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`.
 6. Optionally configure OpenAI for guarded report drafting and Resend for lead notifications.
