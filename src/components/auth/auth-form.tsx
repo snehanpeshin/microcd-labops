@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,13 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   async function submit(formData: FormData) {
     setLoading(true); setError(""); setMessage("");
@@ -37,8 +44,16 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
             next: mode === "signup" ? (next === "/app" ? "/onboarding" : next) : "/onboarding",
           }),
         });
-        const result = await response.json().catch(() => ({})) as { error?: string; requiresConfirmation?: boolean };
-        if (!response.ok) throw new Error(result.error ?? "The email request could not be completed.");
+        const result = await response.json().catch(() => ({})) as {
+          error?: string;
+          requiresConfirmation?: boolean;
+          retryAfter?: number;
+        };
+        if (!response.ok) {
+          if (response.status === 429) setCooldown(result.retryAfter ?? 60);
+          throw new Error(result.error ?? "The email request could not be completed.");
+        }
+        setCooldown(60);
         if (mode === "signup" && result.requiresConfirmation === false) {
           router.push(next === "/app" ? "/onboarding" : next);
           router.refresh();
@@ -61,6 +76,18 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
     {mode === "signup" && <label className="flex items-start gap-3 text-xs font-normal leading-5 text-slate-600"><input name="terms" type="checkbox" required className="mt-0.5 size-4 min-h-0" />I agree to the Terms of Use and acknowledge the Privacy Policy. Do not enter patient or regulated production data during evaluation.</label>}
     {error && <p role="alert" className="flex gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800"><AlertCircle size={17} className="mt-0.5 shrink-0" />{error}</p>}
     {message && <p role="status" className="flex gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800"><CheckCircle2 size={17} className="mt-0.5 shrink-0" />{message}</p>}
-    <Button disabled={loading} className="w-full">{loading ? "Working…" : mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Resend confirmation"}</Button>
+    <Button disabled={loading || cooldown > 0} className="w-full">
+      {loading
+        ? "Working…"
+        : cooldown > 0
+          ? `Try again in ${cooldown}s`
+          : mode === "login"
+            ? "Sign in"
+            : mode === "signup"
+              ? "Create account"
+              : mode === "forgot"
+                ? "Send reset link"
+                : "Resend confirmation"}
+    </Button>
   </form>;
 }

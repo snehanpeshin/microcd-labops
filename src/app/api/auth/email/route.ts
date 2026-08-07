@@ -3,6 +3,30 @@ import { z } from "zod";
 import { authCallbackUrl, safeAuthNext } from "@/lib/auth/redirects";
 import { createClient } from "@/lib/supabase/server";
 
+const EMAIL_COOLDOWN_SECONDS = 60;
+
+function authErrorResponse(error: { code?: string; message: string }) {
+  const rateLimited =
+    error.code === "over_email_send_rate_limit" ||
+    error.code === "email_rate_limit_exceeded" ||
+    /rate limit/i.test(error.message);
+
+  if (rateLimited) {
+    return NextResponse.json(
+      {
+        error: "Too many email requests. Please wait before trying again.",
+        retryAfter: EMAIL_COOLDOWN_SECONDS,
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(EMAIL_COOLDOWN_SECONDS) },
+      },
+    );
+  }
+
+  return NextResponse.json({ error: error.message }, { status: 400 });
+}
+
 const emailAuthSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("signup"),
@@ -41,7 +65,7 @@ export async function POST(request: Request) {
         emailRedirectTo: authCallbackUrl(request, next).toString(),
       },
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return authErrorResponse(error);
     return NextResponse.json({ ok: true, requiresConfirmation: !data.session });
   }
 
@@ -52,13 +76,13 @@ export async function POST(request: Request) {
       email,
       options: { emailRedirectTo: authCallbackUrl(request, next).toString() },
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return authErrorResponse(error);
     return NextResponse.json({ ok: true, requiresConfirmation: true });
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: authCallbackUrl(request, "/reset-password").toString(),
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return authErrorResponse(error);
   return NextResponse.json({ ok: true, requiresConfirmation: true });
 }
