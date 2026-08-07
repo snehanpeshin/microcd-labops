@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Activity, Building2, ClipboardCheck, FileText, FolderKanban, Gauge, PackageSearch, Settings, Boxes } from "lucide-react";
+import { Activity, Building2, ClipboardCheck, FileText, FolderKanban, Gauge, Library, PackageSearch, Settings, Boxes } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation: { href: string; label: string; shortLabel: string; icon: LucideIcon }[] = [
   { href: "/app", label: "Dashboard", shortLabel: "Dashboard", icon: Gauge },
+  { href: "/app/documents", label: "Documentation Hub", shortLabel: "Documents", icon: Library },
   { href: "/app/projects", label: "Projects", shortLabel: "Projects", icon: FolderKanban },
   { href: "/app/reports", label: "Engineering Reports", shortLabel: "Reports", icon: FileText },
   { href: "/app/suppliers", label: "Suppliers", shortLabel: "Suppliers", icon: Building2 },
