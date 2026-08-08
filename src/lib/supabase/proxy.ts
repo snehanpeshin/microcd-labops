@@ -1,16 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { decodeFirebaseToken } from "@/lib/firebase/token";
+import { firebaseSessionCookie } from "@/lib/firebase/session-cookie";
 
 export async function updateSession(request: NextRequest) {
   const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-request-id", requestId);
+  const authorization = request.headers.get("authorization") ?? "";
+  const headerToken = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : null;
+  const cookieToken = request.cookies.get(firebaseSessionCookie)?.value ?? null;
+  const firebaseToken = headerToken ?? cookieToken;
+  const hasFirebaseToken = Boolean(firebaseToken && decodeFirebaseToken(firebaseToken));
+  if (hasFirebaseToken && !headerToken) requestHeaders.set("authorization", `Bearer ${firebaseToken}`);
   let response = NextResponse.next({ request: { headers: requestHeaders } });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return response;
-  const hasFirebaseToken = request.headers.get("authorization")?.startsWith("Bearer ") === true;
-
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll: () => request.cookies.getAll(),

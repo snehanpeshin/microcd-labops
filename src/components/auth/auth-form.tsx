@@ -46,6 +46,7 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
         const token = await credential.user.getIdToken(true);
         await primeAuthServiceWorker(token);
         const session = await fetch("/api/auth/session", {
+          method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });

@@ -1,10 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
+import { firebaseSessionCookie } from "@/lib/firebase/session-cookie";
 
 export async function firebaseAccessToken() {
   const authorization = (await headers()).get("authorization") ?? "";
-  return authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : null;
+  if (authorization.startsWith("Bearer ")) return authorization.slice(7).trim();
+  return (await cookies()).get(firebaseSessionCookie)?.value ?? null;
 }
 
 export async function createClient() {
