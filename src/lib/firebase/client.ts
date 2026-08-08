@@ -28,14 +28,4 @@ export async function ensureAuthServiceWorker() {
   const registration = await navigator.serviceWorker.register("/firebase-auth-sw.js", { scope: "/" });
   await registration.update();
   await navigator.serviceWorker.ready;
-  if (!navigator.serviceWorker.controller) {
-    await new Promise<void>((resolve) => {
-      const controlled = () => resolve();
-      navigator.serviceWorker.addEventListener("controllerchange", controlled, { once: true });
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.removeEventListener("controllerchange", controlled);
-        resolve();
-      }
-    });
-  }
 }
