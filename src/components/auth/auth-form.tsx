@@ -11,7 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { Button } from "@/components/ui/button";
-import { ensureAuthServiceWorker, waitForFirebaseAuth } from "@/lib/firebase/client";
+import { primeAuthServiceWorker, waitForFirebaseAuth } from "@/lib/firebase/client";
 
 type AuthMode = "login" | "signup" | "forgot" | "resend";
 
@@ -43,9 +43,15 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
           setMessage("Verify your email using the newest link we sent, then sign in again.");
           return;
         }
-        await credential.user.getIdToken(true);
-        await ensureAuthServiceWorker();
-        window.location.assign(next);
+        const token = await credential.user.getIdToken(true);
+        await primeAuthServiceWorker(token);
+        const session = await fetch("/api/auth/session", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        if (!session.ok) throw new Error("Your secure session could not be established. Please try again.");
+        const state = await session.json() as { hasWorkspace?: boolean };
+        window.location.assign(state.hasWorkspace ? next : "/onboarding");
         return;
       }
 

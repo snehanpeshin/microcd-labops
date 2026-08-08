@@ -11,10 +11,23 @@ firebase.initializeApp({
   appId: "1:262642302422:web:3c176b4cfeb6aaa7103877",
 });
 
+let pendingPageToken = null;
+
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "SET_AUTH_TOKEN" || typeof event.data.token !== "string") return;
+  pendingPageToken = event.data.token;
+  event.ports[0]?.postMessage({ type: "AUTH_TOKEN_READY" });
+});
+
 function currentIdToken() {
+  if (pendingPageToken) {
+    const token = pendingPageToken;
+    pendingPageToken = null;
+    return Promise.resolve(token);
+  }
   return new Promise((resolve) => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       unsubscribe();

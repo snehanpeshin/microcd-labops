@@ -8,4 +8,4 @@ export const metadata = privatePageMetadata(
   "/onboarding",
 );
 
-export default function OnboardingPage() { return <div><Brand /><h1 className="mt-8 text-2xl font-semibold text-slate-950">Set up your workspace</h1><p className="mt-2 text-sm leading-6 text-slate-600">The workspace is the security boundary for projects, reports, suppliers, files, and team membership.</p><div className="mt-6"><WorkspaceSetup /></div></div>; }
+export default function OnboardingPage() { return <div><Brand /><h1 className="mt-8 text-2xl font-semibold text-slate-950">Set up your workspace</h1><p className="mt-2 text-sm leading-6 text-slate-600">Create the private workspace that will contain your projects, reports, suppliers, files, and team membership.</p><div className="mt-6"><WorkspaceSetup /></div></div>; }
