@@ -16,7 +16,7 @@ Classification meanings:
 | Area | Current classification | Evidence and launch gap |
 | --- | --- | --- |
 | Marketing and legal pages | Fully persistent (source-controlled content) | No database requirement. Attorney review remains required. |
-| Signup, login, password reset | Partially persistent | Supabase Auth calls exist. No automated email-verification or abuse-control test. |
+| Signup, login, password reset | Partially persistent | Firebase Authentication and email verification are configured. Automated browser coverage and abuse-control verification remain launch requirements. |
 | Workspace onboarding | Partially persistent | `create_workspace` persists organization, owner membership, and trial subscription. Redirect/error recovery requires integration tests. |
 | Dashboard | Demo-only | All metrics and activity use `src/lib/data/demo.ts`. |
 | Projects | Mock-only | List is static and “Create project” has no form or write action. |

@@ -9,6 +9,7 @@ export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return response;
+  const hasFirebaseToken = request.headers.get("authorization")?.startsWith("Bearer ") === true;
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -21,7 +22,7 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const { data } = await supabase.auth.getUser();
+  const data = hasFirebaseToken ? { user: { id: "firebase" } } : (await supabase.auth.getUser()).data;
   const isWorkspace = request.nextUrl.pathname.startsWith("/app");
   const isDemo = request.nextUrl.searchParams.get("demo") === "1" || process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
   if (isWorkspace && !data.user && !isDemo) {
@@ -38,6 +39,6 @@ export async function updateSession(request: NextRequest) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  response.headers.set("Content-Security-Policy-Report-Only", "default-src 'self'; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co https://api.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  response.headers.set("Content-Security-Policy-Report-Only", "default-src 'self'; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; connect-src 'self' https://*.supabase.co https://api.stripe.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.googleapis.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   return response;
 }

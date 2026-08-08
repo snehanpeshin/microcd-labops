@@ -21,13 +21,14 @@ Open `http://localhost:3000`. With `NEXT_PUBLIC_DEMO_MODE=true` and no Supabase 
 
 ## Production services
 
-1. Create a new Supabase project and run `supabase/migrations/202607140001_initial_labops.sql` in the SQL editor or with the Supabase CLI.
-2. Set the Supabase URL, publishable key, and server-only service-role key.
-3. Set the Supabase Auth Site URL to the canonical application origin and allow `https://YOUR_DOMAIN/auth/callback` as a redirect URL. Update the Confirm sign up email template to link to `/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/onboarding`; see [deployment](docs/DEPLOYMENT.md).
-4. Create Stripe recurring Team and Lab prices. Set their IDs and the secret key.
-5. Add a Stripe webhook at `https://YOUR_DOMAIN/api/billing/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`.
-6. Optionally configure OpenAI for guarded report drafting and Resend for lead notifications.
-7. Set `NEXT_PUBLIC_DEMO_MODE=false` only after Supabase is configured and the migration is verified.
+1. Create a Supabase project and apply every migration in `supabase/migrations` with the Supabase CLI.
+2. Create a Firebase project, enable email/password authentication and email verification, and deploy the role-claim function in `functions`.
+3. Register the Firebase project under Supabase **Authentication → Third-party Auth** so Supabase can verify its ID tokens.
+4. Set the Firebase public web configuration, Supabase URL and publishable key, and the server-only Supabase service-role key. See [deployment](docs/DEPLOYMENT.md).
+5. Create Stripe recurring Team and Lab prices. Set their IDs and the secret key.
+6. Add a Stripe webhook at `https://YOUR_DOMAIN/api/billing/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`.
+7. Optionally configure OpenAI for guarded report drafting and Resend for lead notifications.
+8. Set `NEXT_PUBLIC_DEMO_MODE=false` only after Firebase, Supabase, and the production migration ledger are verified.
 
 ## Quality gates
 
@@ -41,7 +42,7 @@ npm run build
 ## Security notes
 
 - All customer-owned tables include `organization_id` and enable PostgreSQL RLS.
-- The server obtains the authenticated user with Supabase `getUser()` and resolves active membership.
+- Firebase issues user sessions; Supabase verifies the Firebase ID token and applies PostgreSQL RLS.
 - Server actions and API routes enforce roles in addition to RLS.
 - Files are private and must be accessed through short-lived signed URLs.
 - Service-role, Stripe, Resend, and OpenAI keys are server-only.

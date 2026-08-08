@@ -3,7 +3,7 @@
 - [ ] Legal counsel reviews Terms, Privacy, Acceptable Use, AI disclosure, and subscription terms.
 - [ ] Security reviewer tests two-tenant isolation, roles, private files, session expiry, and IDOR cases.
 - [ ] Supabase backups, alerts, MFA for administrators, and key rotation are configured.
-- [ ] Rate limiting, Supabase Auth CAPTCHA/limits, secure headers, and CSP enforcement are verified. CSP begins report-only and must be tightened from observed violations.
+- [ ] Firebase Authentication limits/bot protection, authorized domains, email verification, secure headers, and CSP enforcement are verified. CSP begins report-only and must be tightened from observed violations.
 - [ ] A real malware-scanning or quarantine provider replaces `BetaFileScanner`; file policy checks alone are not malware scanning.
 - [ ] Stripe test-mode checkout, cancellation, upgrade, failed payment, and webhook replay are verified.
 - [ ] Email domain authentication and transactional templates are verified.
