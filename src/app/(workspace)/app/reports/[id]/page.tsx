@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { AiReportAssistant } from "@/components/reports/ai-report-assistant";
+import { appConfig } from "@/lib/config";
 import { createReportRevision, reviewReport, submitReportForReview } from "../../actions";
 
 const inputClass = "min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
@@ -18,6 +20,10 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
   const project = projects.find((item) => item.id === report.projectId);
   const mayWrite = !identity.demo && can(identity.role, "reports:write");
   const mayReview = !identity.demo && can(identity.role, "reports:review");
+  const mutable=mayWrite&&["Draft","In progress","Changes requested"].includes(report.status);
+  const objective=report.sections.find((section)=>section.title==="Objective")?.content??report.title;
+  const evidence=report.sections.filter((section)=>section.source==="user").map((section)=>`${section.title}:\n${section.content}`).join("\n\n");
+  const criteriaSummary=report.criteria.map((criterion)=>`${criterion.measurement}: ${criterion.operator} ${criterion.minimum??criterion.maximum??criterion.target??"not set"}; observed ${criterion.result??"not provided"}; outcome ${criterion.outcome}`).join("\n");
 
   return <>
     <PageHeader eyebrow={`${report.number} · Rev ${report.revision}`} title={report.title} description={`${project?.code ?? "—"} — ${project?.name ?? "Unassigned project"}`} actions={<><ButtonLink href={`/api/reports/${report.id}/pdf`} external>Export PDF</ButtonLink><ButtonLink href="/app/reports" variant="secondary">Back</ButtonLink></>} />
@@ -28,6 +34,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
       </div>
       <aside className="space-y-5">
         <Card><CardHeader title="Document control" /><CardContent className="space-y-3 text-sm"><p><span className="text-slate-500">Status</span><br /><Badge tone={report.status === "Approved" ? "good" : "warning"}>{report.status}</Badge></p><p><span className="text-slate-500">Author</span><br />{report.author}</p><p><span className="text-slate-500">Reviewer</span><br />{report.reviewer}</p><p><span className="text-slate-500">Classification</span><br />{report.confidentiality}</p></CardContent></Card>
+        {mutable?<AiReportAssistant reportId={report.id} projectId={report.projectId} objective={objective} evidence={evidence} criteriaSummary={criteriaSummary} configured={appConfig.aiConfigured}/>:null}
         {mayWrite && ["Draft", "In progress", "Changes requested"].includes(report.status) && <Card><CardHeader title="Submit for review" description="The assigned reviewer will record a controlled decision." /><CardContent><form action={submitReportForReview} className="space-y-3"><input type="hidden" name="reportId" value={report.id} /><label className="block text-xs font-semibold text-slate-700" htmlFor="submit-comment">Submission note</label><textarea id="submit-comment" name="comment" maxLength={4000} className={inputClass} rows={3} /><Button type="submit">Submit report</Button></form></CardContent></Card>}
         {mayReview && report.status === "Ready for review" && <Card><CardHeader title="Review decision" description="A comment of at least 10 characters is required. Authors cannot approve their own work." /><CardContent><form action={reviewReport} className="space-y-3"><input type="hidden" name="reportId" value={report.id} /><label className="block text-xs font-semibold text-slate-700" htmlFor="review-comment">Review comment</label><textarea id="review-comment" name="comment" minLength={10} maxLength={4000} required className={inputClass} rows={4} /><div className="flex flex-wrap gap-2"><Button type="submit" name="decision" value="approved">Approve revision</Button><Button type="submit" name="decision" value="changes_requested" variant="secondary">Request changes</Button></div></form></CardContent></Card>}
         {mayWrite && report.status === "Approved" && <Card><CardHeader title="Create next revision" description="The approved revision remains locked and traceable." /><CardContent><form action={createReportRevision} className="space-y-3"><input type="hidden" name="reportId" value={report.id} /><label className="block text-xs font-semibold text-slate-700" htmlFor="change-summary">Change summary</label><textarea id="change-summary" name="changeSummary" minLength={10} maxLength={4000} required className={inputClass} rows={4} /><Button type="submit">Create new revision</Button></form></CardContent></Card>}

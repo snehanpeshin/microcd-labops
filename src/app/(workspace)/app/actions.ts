@@ -109,6 +109,18 @@ export async function createReportDraft(raw: ReportDraftInput) {
   revalidatePath("/app/reports"); return { id: report.id };
 }
 
+const aiDraftAcceptanceSchema=z.object({reportId:z.string().uuid(),section:z.enum(["executive_summary","methodology","results","conclusion"]),content:z.string().trim().min(10).max(12000),promptVersion:z.string().min(1).max(80),model:z.string().min(1).max(100),generatedAt:z.string().datetime()});
+const aiSectionTitles={executive_summary:"Executive summary",methodology:"Methodology",results:"Results interpretation",conclusion:"Conclusion"} as const;
+export async function acceptAiReportDraft(raw:z.input<typeof aiDraftAcceptanceSchema>){
+  const {identity}=await context("reports:write");const input=aiDraftAcceptanceSchema.parse(raw);const admin=createAdminClient();
+  const [report,sections]=await Promise.all([admin.from("reports").select("id,status,number").eq("id",input.reportId).eq("organization_id",identity.organizationId).is("deleted_at",null).maybeSingle(),admin.from("report_sections").select("sort_order").eq("report_id",input.reportId).eq("organization_id",identity.organizationId).order("sort_order",{ascending:false}).limit(1)]);
+  if(report.error||!report.data)throw new Error("Report not found.");if(report.data.status==="approved"||report.data.status==="archived")throw new Error("This report revision is immutable.");
+  const result=await admin.from("report_sections").insert({organization_id:identity.organizationId,report_id:input.reportId,title:aiSectionTitles[input.section],content:input.content,sort_order:(sections.data?.[0]?.sort_order??0)+1,source:"ai_assisted",ai_metadata:{model:input.model,prompt_version:input.promptVersion,generated_at:input.generatedAt,accepted_at:new Date().toISOString(),accepted_by:identity.userId,human_review_required:true}});
+  if(result.error)throw new Error("The AI-assisted section could not be saved.");await recordActivity(identity.organizationId,identity.userId,"ai_draft_accepted","Report",input.reportId,`AI-assisted ${aiSectionTitles[input.section].toLowerCase()} accepted into ${report.data.number}`);revalidatePath(`/app/reports/${input.reportId}`);revalidatePath("/app/reports");
+}
+
+export async function updateAiWorkspaceSettings(formData:FormData){const{identity}=await context("members:manage");const input=z.object({monthlyLimit:z.coerce.number().int().min(0).max(10000)}).parse({monthlyLimit:textField(formData,"monthlyLimit")});const enabled=formData.has("aiEnabled");const result=await createAdminClient().from("organizations").update({ai_enabled:enabled,ai_monthly_limit:enabled?input.monthlyLimit:0}).eq("id",identity.organizationId);if(result.error)throw new Error("AI workspace settings could not be saved.");await recordActivity(identity.organizationId,identity.userId,"ai_settings_updated","Organization",identity.organizationId,`AI assistance ${enabled?"enabled":"disabled"}; monthly limit ${enabled?input.monthlyLimit:0}`);revalidatePath("/app/settings");redirect("/app/settings?ai=saved");}
+
 const reportTransitionSchema = z.object({
   reportId: z.string().uuid(),
   comment: z.string().trim().max(4000).default(""),
