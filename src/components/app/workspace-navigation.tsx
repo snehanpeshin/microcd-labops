@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ClipboardCheck, FileText, FileUp, FlaskConical, FolderKanban, Gauge, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
+import { Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ClipboardCheck, FileText, FileUp, FlaskConical, FolderKanban, Gauge, GitBranch, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = { href:string; label:string; shortLabel:string; icon:LucideIcon };
@@ -12,6 +12,7 @@ const navigationGroups: { label:string; items:NavigationItem[] }[] = [
   { label:"Lab operations", items:[
     { href:"/app/projects",label:"Projects",shortLabel:"Projects",icon:FolderKanban },
     { href:"/app/experiments",label:"Experiments",shortLabel:"Experiments",icon:FlaskConical },
+    { href:"/app/builds",label:"Device Builds",shortLabel:"Builds",icon:GitBranch },
     { href:"/app/samples",label:"Samples",shortLabel:"Samples",icon:TestTube2 },
     { href:"/app/protocols",label:"Protocols",shortLabel:"Protocols",icon:BookOpenCheck },
   ]},

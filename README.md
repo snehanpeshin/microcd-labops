@@ -5,6 +5,7 @@ MicroCD LabOps is a multi-tenant laboratory operations SaaS connecting scientifi
 1. Projects, experiments, versioned protocols, samples and lineage, inventory transactions, equipment history, and linked tasks.
 2. Engineering reports, supplier and material traceability, lots, incoming inspections, dispositions, attachments, and audit activity.
 3. Pilot-readiness tools: validated CSV imports, sample barcode/QR lookup, action digests, measurable outcome analytics, workspace templates, CSV exports, and a versioned read-only API.
+4. Scientific-hardware evidence: device-build genealogy, inspected component-lot links, enforced pre-run readiness gates, and immutable checksum-protected evidence packets with PDF export.
 
 The repository includes an explicitly fictional demo workspace. It does **not** claim to be a validated QMS, LIMS, ERP, PLM, CAPA, regulated electronic-signature system, or regulatory solution.
 
@@ -49,5 +50,6 @@ npm run build
 - Service-role, Stripe, Resend, and OpenAI keys are server-only.
 - Stripe subscription state changes only after verified webhook signatures.
 - AI output is labeled, prompt-versioned, and requires human review.
+- Evidence packets are immutable traceability snapshots; they are not represented as regulated electronic signatures or independent technical approvals.
 
 See [architecture](docs/ARCHITECTURE.md), [security](docs/SECURITY.md), [deployment](docs/DEPLOYMENT.md), and [launch checklist](docs/LAUNCH_CHECKLIST.md).

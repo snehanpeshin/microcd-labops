@@ -8,6 +8,7 @@ import { can, type Permission } from "@/lib/security/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { canTransitionExperiment, signedInventoryDelta } from "@/lib/lab-workflows";
+import { getExperimentOperationalContext } from "@/lib/data/traceability";
 
 function textField(data: FormData, name: string) { return String(data.get(name) ?? "").trim(); }
 function optionalUuid(value?: string) { return value || null; }
@@ -63,6 +64,12 @@ export async function transitionExperiment(formData: FormData) {
   if (!canTransitionExperiment(current.status,input.status)) throw new Error(`Experiment cannot transition from ${current.status} to ${input.status}.`);
   const permission = input.status === "approved" ? "lab:review" : "lab:write";
   if (!can(identity.role,permission)) throw new Error(input.status === "approved" ? "Only reviewers, administrators, and owners can approve experiments." : "You do not have permission to change this experiment.");
+  if (["ready","running"].includes(input.status)) {
+    const readiness=await getExperimentOperationalContext(identity,input.experimentId);
+    if(!readiness)throw new Error("Experiment readiness could not be evaluated.");
+    const blockers=readiness.readiness.checks.filter((check)=>check.level==="blocked");
+    if(blockers.length)throw new Error(`Readiness gate blocked this transition: ${blockers.map((check)=>check.summary).join(" ")}`);
+  }
   const completionDate = ["completed","failed"].includes(input.status) ? new Date().toISOString().slice(0,10) : null;
   const { error } = await admin.from("experiments").update({ status:input.status, completion_date:completionDate, updated_at:new Date().toISOString() }).eq("id",input.experimentId).eq("organization_id",identity.organizationId);
   if (error) throw new Error("Experiment status could not be updated.");

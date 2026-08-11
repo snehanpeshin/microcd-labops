@@ -175,12 +175,23 @@ label { color: #334155; font-size: 0.82rem; font-weight: 600; }
 .scanner-frame > div { display: grid; place-items: center; gap: 10px; text-align: center; }
 .scanner-frame > div span { color: #a7c9c5; font-size: .78rem; }
 .scanner-corners { position: absolute; width: min(68%,320px); aspect-ratio: 1.45; border: 2px solid rgba(153,246,228,.8); border-radius: 14px; box-shadow: 0 0 0 999px rgba(3,15,15,.22); pointer-events: none; }
+.genealogy-row { display: flex; align-items: flex-start; gap: .9rem; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; background: linear-gradient(135deg,#fff,#f8fafc); }
+.genealogy-node { display: grid; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; place-items: center; border-radius: 999px; color: #0f766e; background: #ecfdf5; box-shadow: 0 0 0 4px #f0fdfa; }
+.readiness-card { overflow: hidden; border-top-width: 4px; }
+.readiness-ready { border-top-color: #0f766e; } .readiness-at_risk { border-top-color: #d97706; } .readiness-blocked { border-top-color: #dc2626; }
+.readiness-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .75rem; }
+.readiness-check { display: flex; align-items: flex-start; gap: .75rem; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; background: white; }
+.readiness-check > svg { flex: 0 0 auto; margin-top: .08rem; } .readiness-check strong { color: #0f172a; font-size: .875rem; } .readiness-check p { margin-top: .25rem; color: #475569; font-size: .8rem; line-height: 1.35rem; } .readiness-check ul { margin: .45rem 0 0 1rem; color: #64748b; font-size: .75rem; line-height: 1.25rem; list-style: disc; }
+.readiness-check-ready { border-color: #a7f3d0; background: #f0fdfa; } .readiness-check-ready > svg { color: #0f766e; }
+.readiness-check-at_risk { border-color: #fde68a; background: #fffbeb; } .readiness-check-at_risk > svg { color: #b45309; }
+.readiness-check-blocked { border-color: #fecaca; background: #fef2f2; } .readiness-check-blocked > svg { color: #dc2626; }
 
+@media (max-width: 1024px) { .readiness-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 900px) { .metric-grid, .record-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 640px) { .workspace-user-name { display: inline; } }
 @media (min-width: 1024px) { .workspace-sidebar { display: flex; } .workspace-main { padding-left: 252px; } .workspace-header > .lg\:hidden { display: none; } .workspace-mobile-bar { display: none; } .workspace-content { padding: 28px 30px 40px; } .workspace-search { display: flex; } }
 @media (max-width: 1023px) { .marketing-nav { display: none; } .mobile-menu { display: block; } .hero-grid > .hero-layout { grid-template-columns: minmax(0, 1fr); } .product-preview-wrap { width: min(720px, 100%); } }
 @media (max-width: 720px) { .utility-bar span { display: none; } .utility-bar { justify-content: flex-end; } .marketing-header-inner { padding-inline: 14px; } .brand-wordmark { width: 126px; } .brand-product { display: none; } .marketing-footer-grid { grid-template-columns: 1fr; } }
-@media (max-width: 640px) { .metric-grid, .form-grid, .record-summary-grid { grid-template-columns: minmax(0, 1fr); } .form-field-wide { grid-column: auto; } .workspace-header { gap: 10px; padding-inline: 14px; } .workspace-identity { display: none; } .workspace-content { padding-inline: 14px; } .product-preview-inner > div:first-child { flex-wrap: wrap; } .marketing-actions > a:first-child { display: none; } .registry-toolbar > label, .registry-toolbar > select { width: 100%; } .detail-list > div { grid-template-columns: 1fr; gap: 3px; } }
+@media (max-width: 640px) { .metric-grid, .form-grid, .record-summary-grid, .readiness-grid { grid-template-columns: minmax(0, 1fr); } .form-field-wide { grid-column: auto; } .workspace-header { gap: 10px; padding-inline: 14px; } .workspace-identity { display: none; } .workspace-content { padding-inline: 14px; } .product-preview-inner > div:first-child { flex-wrap: wrap; } .marketing-actions > a:first-child { display: none; } .registry-toolbar > label, .registry-toolbar > select { width: 100%; } .detail-list > div { grid-template-columns: 1fr; gap: 3px; } .genealogy-row { padding: .85rem; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } }
 @media (hover: none) { .product-preview:hover, .capability-card:hover, .metric-card:hover { transform: none; } }

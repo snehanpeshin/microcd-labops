@@ -19,6 +19,8 @@ export const apiResources={
   samples:{table:"samples",columns:"id,code,name,sample_type,source,project_id,experiment_id,parent_sample_id,quantity,concentration,unit,storage_location,freezer,rack,box,position,status,expiration_date,barcode,created_at,updated_at",search:["code","name","barcode"]},
   inventory:{table:"inventory_items",columns:"id,code,name,item_type,manufacturer,catalog_number,lot_number,quantity,unit,minimum_stock,storage_location,received_date,opened_date,expiration_date,created_at,updated_at",search:["code","name","catalog_number","lot_number"]},
   equipment:{table:"equipment",columns:"id,code,name,category,manufacturer,model,serial_number,location,status,last_maintenance,next_maintenance,last_calibration,next_calibration,created_at,updated_at",search:["code","name","serial_number"]},
+  builds:{table:"device_builds",columns:"id,code,name,project_id,revision,serial_number,firmware_version,configuration,status,built_at,created_at,updated_at",search:["code","name","serial_number","configuration"]},
+  evidence:{table:"evidence_packets",columns:"id,experiment_id,packet_number,version,readiness_status,checksum_sha256,created_at",search:["packet_number"]},
 } as const;
 export type ApiResource=keyof typeof apiResources;
 

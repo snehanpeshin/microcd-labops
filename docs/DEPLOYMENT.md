@@ -28,7 +28,7 @@ Use Node 22. From a clean checkout run `npm ci`, `npm run typecheck`, `npm run l
 
 ## Database release safety
 
-Apply all migrations to staging first, including `202607140003_controlled_records.sql`, `202608100008_laboratory_operations.sql`, and `202608110009_pilot_readiness.sql`. Follow `TENANT_ISOLATION_TEST.md`. Back up before schema changes. Never run service-role credentials in browser code.
+Apply all migrations to staging first, including `202607140003_controlled_records.sql`, `202608100008_laboratory_operations.sql`, `202608110009_pilot_readiness.sql`, and `202608110010_device_genealogy_readiness_evidence.sql`. Follow `TENANT_ISOLATION_TEST.md`. Back up before schema changes. Never run service-role credentials in browser code. The readiness migration adds only organization-scoped tables and indexes; evidence rows are intentionally append-only for authenticated users.
 
 ## AWS Amplify
 
