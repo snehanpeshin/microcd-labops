@@ -2,8 +2,7 @@
 
 ## Controls
 
-- Firebase Authentication persists the browser session and supplies signed ID tokens to Next.js and Supabase.
-- Supabase verifies registered Firebase tokens before PostgreSQL RLS evaluates the token subject and organization membership.
+- Supabase Auth sessions are refreshed through the Next.js proxy and resolved server-side.
 - PostgreSQL RLS is enabled for every tenant-owned table.
 - Organization membership and role are checked independently of URL or client state.
 - Private storage paths begin with the organization UUID; signed URLs should be short lived.

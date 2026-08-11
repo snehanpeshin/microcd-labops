@@ -7,15 +7,17 @@ export type Permission =
   | "reports:write"
   | "reports:review"
   | "suppliers:write"
+  | "lab:write"
+  | "lab:review"
   | "records:read"
   | "workspace:delete"
   | "workspace:export";
 
 const permissions: Record<Role, ReadonlySet<Permission>> = {
-  owner: new Set(["billing:manage", "members:manage", "projects:write", "reports:write", "reports:review", "suppliers:write", "records:read", "workspace:delete", "workspace:export"]),
-  admin: new Set(["members:manage", "projects:write", "reports:write", "reports:review", "suppliers:write", "records:read", "workspace:export"]),
-  engineer: new Set(["projects:write", "reports:write", "suppliers:write", "records:read"]),
-  reviewer: new Set(["reports:review", "records:read"]),
+  owner: new Set(["billing:manage", "members:manage", "projects:write", "reports:write", "reports:review", "suppliers:write", "lab:write", "lab:review", "records:read", "workspace:delete", "workspace:export"]),
+  admin: new Set(["members:manage", "projects:write", "reports:write", "reports:review", "suppliers:write", "lab:write", "lab:review", "records:read", "workspace:export"]),
+  engineer: new Set(["projects:write", "reports:write", "suppliers:write", "lab:write", "records:read"]),
+  reviewer: new Set(["reports:review", "lab:review", "records:read"]),
   viewer: new Set(["records:read"]),
 };
 

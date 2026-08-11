@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { appConfig } from "@/lib/config";
-import { getFirebaseClaims } from "@/lib/firebase/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Role } from "@/lib/types";
 
@@ -28,28 +27,6 @@ export async function getWorkspaceIdentity(): Promise<WorkspaceIdentity | null> 
   }
 
   const supabase = await createClient();
-  const firebase = await getFirebaseClaims();
-  if (firebase) {
-    const { data: membership } = await supabase
-      .from("organization_members")
-      .select("organization_id, role, organizations(name)")
-      .eq("user_id", firebase.sub)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-    if (!membership) return null;
-    const organization = Array.isArray(membership.organizations) ? membership.organizations[0] : membership.organizations;
-    return {
-      userId: firebase.sub,
-      email: firebase.email,
-      fullName: firebase.name,
-      organizationId: membership.organization_id,
-      organizationName: organization?.name ?? "Organization",
-      role: membership.role as Role,
-      demo: false,
-    };
-  }
-
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: membership } = await supabase
@@ -75,7 +52,6 @@ export async function getWorkspaceIdentity(): Promise<WorkspaceIdentity | null> 
 export async function requireWorkspaceIdentity() {
   const identity = await getWorkspaceIdentity();
   if (!identity && appConfig.supabaseConfigured) {
-    if (await getFirebaseClaims()) redirect("/onboarding");
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) redirect("/onboarding");

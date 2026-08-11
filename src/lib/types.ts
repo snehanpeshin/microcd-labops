@@ -104,6 +104,7 @@ export interface Inspection {
 
 export interface Activity {
   id: string;
+  recordId?: string;
   actor: string;
   action: string;
   recordType: string;

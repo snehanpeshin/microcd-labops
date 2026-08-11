@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { FirebaseSession } from "@/components/auth/firebase-session";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,5 +22,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><FirebaseSession />{children}</body></html>;
+  return <html lang="en"><body>{children}</body></html>;
 }

@@ -7,10 +7,10 @@ import { BetaFileScanner, validateUpload } from "@/lib/storage/file-policy";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const recordSchema = z.object({
-  recordType: z.enum(["report", "supplier", "component", "lot", "inspection"]),
+  recordType: z.enum(["report", "supplier", "component", "lot", "inspection", "experiment", "sample", "equipment", "protocol"]),
   recordId: z.string().uuid(),
 });
-const recordTables = { report: "reports", supplier: "suppliers", component: "components", lot: "lots", inspection: "inspections" } as const;
+const recordTables = { report: "reports", supplier: "suppliers", component: "components", lot: "lots", inspection: "inspections", experiment:"experiments", sample:"samples", equipment:"equipment", protocol:"protocols" } as const;
 
 export async function POST(request: Request) {
   const identity = await getWorkspaceIdentity();
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const parsed = recordSchema.safeParse({ recordType: body.get("recordType"), recordId: body.get("recordId") });
   const file = body.get("file");
   if (!parsed.success || !(file instanceof File)) return NextResponse.json({ error: "Invalid upload request" }, { status: 400 });
-  const requiredPermission: Permission = parsed.data.recordType === "report" ? "reports:write" : "suppliers:write";
+  const requiredPermission: Permission = parsed.data.recordType === "report" ? "reports:write" : ["experiment","sample","equipment","protocol"].includes(parsed.data.recordType) ? "lab:write" : "suppliers:write";
   if (!can(identity.role, requiredPermission)) return NextResponse.json({ error: "Insufficient permission for this record type" }, { status: 403 });
 
   const admin = createAdminClient();

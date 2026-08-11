@@ -64,6 +64,6 @@ export async function listInspections(identity: WorkspaceIdentity): Promise<Insp
 export async function listActivity(identity: WorkspaceIdentity): Promise<Activity[]> {
   if (identity.demo) return demoActivity;
   const supabase = await createClient();
-  const result = await supabase.from("activity_log").select("id,action,record_type,summary,created_at,actor:profiles!activity_log_actor_profile_fkey(full_name)").eq("organization_id", identity.organizationId).order("created_at", { ascending: false }).limit(100);
-  return requireData(result.data, result.error).map((row) => ({ id: String(row.id), actor: relatedName(row.actor, "System"), action: row.action, recordType: row.record_type, summary: row.summary, timestamp: row.created_at }));
+  const result = await supabase.from("activity_log").select("id,record_id,action,record_type,summary,created_at,actor:profiles!activity_log_actor_profile_fkey(full_name)").eq("organization_id", identity.organizationId).order("created_at", { ascending: false }).limit(100);
+  return requireData(result.data, result.error).map((row) => ({ id: String(row.id), recordId: row.record_id ?? undefined, actor: relatedName(row.actor, "System"), action: row.action, recordType: row.record_type, summary: row.summary, timestamp: row.created_at }));
 }

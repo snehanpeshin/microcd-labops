@@ -95,8 +95,8 @@ export const demoInspections: Inspection[] = [
 ];
 
 export const demoActivity: Activity[] = [
-  { id: "a1", actor: "Jon Bell", action: "completed", recordType: "Inspection", summary: "INSP-2026-004 marked Failed; lot moved to quarantine.", timestamp: "2026-07-12T16:10:00Z" },
-  { id: "a2", actor: "Dr. Maya Chen", action: "submitted", recordType: "Report", summary: "ETR-CDX-001-01 Rev A submitted for review.", timestamp: "2026-07-12T14:32:00Z" },
+  { id: "a1", recordId: "ins_001", actor: "Jon Bell", action: "completed", recordType: "Inspection", summary: "INSP-2026-004 marked Failed; lot moved to quarantine.", timestamp: "2026-07-12T16:10:00Z" },
+  { id: "a2", recordId: "rpt_001", actor: "Dr. Maya Chen", action: "submitted", recordType: "Report", summary: "ETR-CDX-001-01 Rev A submitted for review.", timestamp: "2026-07-12T14:32:00Z" },
   { id: "a3", actor: "System", action: "flagged", recordType: "Supplier document", summary: "Insurance certificate expires within 30 days.", timestamp: "2026-07-11T08:00:00Z" },
   { id: "a4", actor: "Jon Bell", action: "received", recordType: "Lot", summary: "LOT-26-0711-A received from fictional supplier Northstar Polymer Works.", timestamp: "2026-07-11T12:05:00Z" },
 ];
