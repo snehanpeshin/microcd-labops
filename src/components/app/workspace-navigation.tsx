@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Activity, BookOpenCheck, Boxes, Building2, ClipboardCheck, FileText, FlaskConical, FolderKanban, Gauge, ListTodo, Microscope, PackageSearch, Search, Settings, TestTube2, Warehouse } from "lucide-react";
+import { Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ClipboardCheck, FileText, FileUp, FlaskConical, FolderKanban, Gauge, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = { href:string; label:string; shortLabel:string; icon:LucideIcon };
@@ -24,8 +24,14 @@ const navigationGroups: { label:string; items:NavigationItem[] }[] = [
     { href:"/app/inspections",label:"Inspections",shortLabel:"Inspections",icon:ClipboardCheck },
   ]},
   { label:"Documentation", items:[{ href:"/app/reports",label:"Engineering Reports",shortLabel:"Reports",icon:FileText }] },
-  { label:"Work", items:[{ href:"/app/tasks",label:"Tasks",shortLabel:"Tasks",icon:ListTodo }] },
+  { label:"Work", items:[
+    { href:"/app/tasks",label:"Tasks",shortLabel:"Tasks",icon:ListTodo },
+    { href:"/app/imports",label:"CSV Imports",shortLabel:"Imports",icon:FileUp },
+  ]},
+  { label:"Insights", items:[{ href:"/app/analytics",label:"Pilot Analytics",shortLabel:"Analytics",icon:BarChart3 }] },
   { label:"System", items:[
+    { href:"/app/get-started",label:"Workspace Templates",shortLabel:"Templates",icon:Sparkles },
+    { href:"/app/developers",label:"Exports & API",shortLabel:"Data & API",icon:Braces },
     { href:"/app/search",label:"Global Search",shortLabel:"Search",icon:Search },
     { href:"/app/activity",label:"Activity Log",shortLabel:"Activity",icon:Activity },
     { href:"/app/settings",label:"Settings",shortLabel:"Settings",icon:Settings },

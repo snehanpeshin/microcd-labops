@@ -1,9 +1,10 @@
 # MicroCD LabOps
 
-MicroCD LabOps is a multi-tenant engineering operations SaaS for two connected workflows:
+MicroCD LabOps is a multi-tenant laboratory operations SaaS connecting scientific execution, resource readiness, and engineering evidence:
 
-1. Engineering report generation from controlled context, source evidence, transparent calculations, explicit criteria, review, and PDF export.
-2. Supplier and material traceability from qualification documents through components, lots, incoming inspections, dispositions, and issues.
+1. Projects, experiments, versioned protocols, samples and lineage, inventory transactions, equipment history, and linked tasks.
+2. Engineering reports, supplier and material traceability, lots, incoming inspections, dispositions, attachments, and audit activity.
+3. Pilot-readiness tools: validated CSV imports, sample barcode/QR lookup, action digests, measurable outcome analytics, workspace templates, CSV exports, and a versioned read-only API.
 
 The repository includes an explicitly fictional demo workspace. It does **not** claim to be a validated QMS, LIMS, ERP, PLM, CAPA, regulated electronic-signature system, or regulatory solution.
 
@@ -26,8 +27,9 @@ Open `http://localhost:3000`. With `NEXT_PUBLIC_DEMO_MODE=true` and no Supabase 
 3. Set the Supabase Auth Site URL to the canonical application origin and allow `https://YOUR_DOMAIN/auth/callback` as a redirect URL. Update the Confirm sign up email template to link to `/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/onboarding`; see [deployment](docs/DEPLOYMENT.md).
 4. Create Stripe recurring Team and Lab prices. Set their IDs and the secret key.
 5. Add a Stripe webhook at `https://YOUR_DOMAIN/api/billing/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`.
-6. Optionally configure OpenAI for guarded report drafting and Resend for lead notifications.
-7. Set `NEXT_PUBLIC_DEMO_MODE=false` only after Supabase is configured and the migration is verified.
+6. Optionally configure OpenAI for guarded report drafting and Resend for lead and operational alert notifications.
+7. Set `CRON_SECRET` and invoke `POST /api/cron/alerts` with `Authorization: Bearer $CRON_SECRET` on a daily schedule when action digests are enabled.
+8. Set `NEXT_PUBLIC_DEMO_MODE=false` only after Supabase is configured and every migration is verified.
 
 ## Quality gates
 

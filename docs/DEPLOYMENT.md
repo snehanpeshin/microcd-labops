@@ -18,8 +18,9 @@
 8. Create Stripe products/prices and configure the signed webhook endpoint.
 9. Configure Supabase Auth email limits, CAPTCHA, redirect allowlists, and leaked-password protection. Do not rely on UI-only throttling.
 10. Configure private storage malware scanning or quarantine. `BetaFileScanner` is policy validation only and is not a malware scanner.
-11. Deploy with demo mode enabled, run the staging tenant-isolation protocol, Stripe webhook replay tests, invitation lifecycle, and restore drill.
-12. Set `NEXT_PUBLIC_DEMO_MODE=false` only after the release owner signs the launch checklist.
+11. Set a high-entropy `CRON_SECRET` and configure a daily scheduler to call `POST /api/cron/alerts` with `Authorization: Bearer $CRON_SECRET`. Confirm Resend delivery and notification-delivery deduplication in staging.
+12. Deploy with demo mode enabled, run the staging tenant-isolation protocol, Stripe webhook replay tests, invitation lifecycle, CSV import rollback checks, API tenant-boundary tests, and restore drill.
+13. Set `NEXT_PUBLIC_DEMO_MODE=false` only after the release owner signs the launch checklist.
 
 ## Verification commands
 
@@ -27,7 +28,7 @@ Use Node 22. From a clean checkout run `npm ci`, `npm run typecheck`, `npm run l
 
 ## Database release safety
 
-Apply all migrations to staging first, including `202607140003_controlled_records.sql`. Follow `TENANT_ISOLATION_TEST.md`. Back up before schema changes. Never run service-role credentials in browser code.
+Apply all migrations to staging first, including `202607140003_controlled_records.sql`, `202608100008_laboratory_operations.sql`, and `202608110009_pilot_readiness.sql`. Follow `TENANT_ISOLATION_TEST.md`. Back up before schema changes. Never run service-role credentials in browser code.
 
 ## AWS Amplify
 

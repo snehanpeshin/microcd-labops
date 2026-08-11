@@ -1,0 +1,23 @@
+name: LabOps alert digests
+
+on:
+  schedule:
+    - cron: "15 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deliver-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Send due LabOps alerts
+        env:
+          LABOPS_CRON_SECRET: ${{ secrets.LABOPS_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer ${LABOPS_CRON_SECRET}" \
+            https://labops.microcdlabs.com/api/cron/alerts

@@ -1,0 +1,2 @@
+code,name,item_type,manufacturer,catalog_number,lot_number,quantity,unit,minimum_stock,storage_location,received_date,expiration_date,notes
+INV-00125,Phosphate-buffered saline,reagent,Fictional BioSupply,PBS-1X-500,LOT-2608,2.5,L,1,Cold room CR-1,2026-08-11,2027-02-11,Example row - replace before import

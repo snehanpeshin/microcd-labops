@@ -4,6 +4,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://labops.microcdlabs.
 
 const routes = [
   { path: "", priority: 1, changeFrequency: "weekly" as const },
+  { path: "/product-tour", priority: 0.95, changeFrequency: "monthly" as const },
   { path: "/features/reports", priority: 0.9, changeFrequency: "monthly" as const },
   { path: "/features/traceability", priority: 0.9, changeFrequency: "monthly" as const },
   { path: "/pricing", priority: 0.7, changeFrequency: "monthly" as const },

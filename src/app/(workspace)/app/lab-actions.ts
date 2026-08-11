@@ -23,8 +23,12 @@ async function context(permission: Permission) {
 }
 
 async function recordActivity(organizationId: string, userId: string, action: string, recordType: string, recordId: string, summary: string) {
-  const { error } = await createAdminClient().from("activity_log").insert({ organization_id:organizationId, actor_id:userId, action, record_type:recordType, record_id:recordId, summary });
-  if (error) throw new Error("The record was saved, but its audit entry failed. Contact support.");
+  const admin=createAdminClient();
+  const [activity,adoption]=await Promise.all([
+    admin.from("activity_log").insert({ organization_id:organizationId, actor_id:userId, action, record_type:recordType, record_id:recordId, summary }),
+    admin.from("product_events").insert({ organization_id:organizationId, actor_id:userId, event_name:action, entity_type:recordType, entity_id:recordId }),
+  ]);
+  if (activity.error||adoption.error) throw new Error("The record was saved, but its audit entry failed. Contact support.");
 }
 
 async function verifyReference(table: "projects" | "experiments" | "samples" | "protocol_versions" | "inventory_items" | "equipment" | "lab_tasks", id: string, organizationId: string) {

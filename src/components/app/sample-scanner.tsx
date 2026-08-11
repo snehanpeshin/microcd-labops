@@ -1,0 +1,17 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Camera, Keyboard, ScanLine, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type Detector={detect:(source:ImageBitmapSource)=>Promise<Array<{rawValue:string}>>};
+type DetectorConstructor=new(options?:{formats?:string[]})=>Detector;
+
+export function SampleScanner(){const router=useRouter();const videoRef=useRef<HTMLVideoElement>(null);const streamRef=useRef<MediaStream|null>(null);const frameRef=useRef<number|null>(null);const [active,setActive]=useState(false);const [message,setMessage]=useState("Camera scanning is optional; manual entry always works.");
+  function lookup(value:string){const code=value.trim();if(code)router.push(`/app/samples/scan?code=${encodeURIComponent(code)}`);}
+  function stop(){if(frameRef.current)cancelAnimationFrame(frameRef.current);streamRef.current?.getTracks().forEach(track=>track.stop());streamRef.current=null;setActive(false);}
+  async function start(){const Detector=(window as unknown as {BarcodeDetector?:DetectorConstructor}).BarcodeDetector;if(!Detector){setMessage("This browser does not support camera barcode detection. Use manual entry below.");return;}try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});streamRef.current=stream;if(videoRef.current){videoRef.current.srcObject=stream;await videoRef.current.play();}const detector=new Detector({formats:["qr_code","code_128","code_39","ean_13"]});setActive(true);setMessage("Point the camera at a sample barcode or QR code.");const scan=async()=>{if(videoRef.current){const found=await detector.detect(videoRef.current).catch(()=>[]);if(found[0]?.rawValue){stop();lookup(found[0].rawValue);return;}}frameRef.current=requestAnimationFrame(scan);};frameRef.current=requestAnimationFrame(scan);}catch{setMessage("Camera access was unavailable. Enter the sample code or barcode manually.");stop();}}
+  useEffect(()=>stop,[]);
+  return <div className="grid gap-5 lg:grid-cols-[1.05fr_.95fr]"><section className="scanner-panel"><div className="scanner-frame">{active?<video ref={videoRef} muted playsInline aria-label="Barcode camera preview"/>:<div><ScanLine size={42}/><strong>Camera ready when you are</strong><span>No image is uploaded or stored.</span></div>}<span className="scanner-corners" aria-hidden="true"/></div><p role="status" className="text-sm text-slate-600">{message}</p><div className="flex flex-wrap gap-3">{active?<Button type="button" variant="secondary" onClick={stop}><X size={16}/>Stop camera</Button>:<Button type="button" onClick={start}><Camera size={16}/>Start scanner</Button>}</div></section><section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"><Keyboard className="text-teal-700"/><h2 className="mt-4 text-lg font-semibold text-slate-950">Manual lookup</h2><p className="mt-2 text-sm leading-6 text-slate-600">Enter the human-readable sample ID or its registered barcode.</p><form className="mt-5 space-y-4" onSubmit={event=>{event.preventDefault();const data=new FormData(event.currentTarget);lookup(String(data.get("code")??""));}}><div className="form-field"><label htmlFor="scan-code">Sample ID or barcode</label><input id="scan-code" name="code" autoFocus placeholder="SMP-2026-00431" required/></div><Button>Find sample</Button></form></section></div>;
+}
