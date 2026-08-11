@@ -21,11 +21,13 @@ export function marketingMetadata({
       title: `${title} | ${siteName}`,
       description,
       url: path,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: "MicroCD LabOps connected evidence workflow" }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${title} | ${siteName}`,
       description,
+      images: ["/og.png"],
     },
   };
 }
