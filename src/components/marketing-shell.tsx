@@ -13,5 +13,5 @@ export function MarketingFooter() {
 }
 
 export function MarketingShell({ children }: { children: ReactNode }) {
-  return <><MarketingHeader /><main>{children}</main><MarketingFooter /></>;
+  return <><a className="skip-link" href="#main-content">Skip to main content</a><MarketingHeader /><main id="main-content" tabIndex={-1}>{children}</main><MarketingFooter /></>;
 }

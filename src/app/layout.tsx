@@ -12,11 +12,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "MicroCD LabOps",
     url: "/",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "MicroCD LabOps connected evidence workflow" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "MicroCD LabOps | Laboratory Operations for Scientific Teams",
     description: "Connected laboratory operations and engineering evidence for scientific hardware teams.",
+    images: ["/og.png"],
   },
   robots: { index: true, follow: true },
 };

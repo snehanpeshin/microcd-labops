@@ -10,9 +10,9 @@ const variants = {
 };
 
 export function Button({ className, variant = "primary", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof variants }) {
-  return <button className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0", variants[variant], className)} {...props} />;
+  return <button className={cn("inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0", variants[variant], className)} {...props} />;
 }
 
 export function ButtonLink({ href, children, className, variant = "primary", external = false }: { href: string; children: ReactNode; className?: string; variant?: keyof typeof variants; external?: boolean }) {
-  return <Link href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className={cn("inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", variants[variant], className)}>{children}</Link>;
+  return <Link href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} className={cn("inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", variants[variant], className)}>{children}</Link>;
 }
