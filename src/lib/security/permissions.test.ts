@@ -5,4 +5,5 @@ describe("authorization", () => {
   it("prevents viewers from mutating records", () => { expect(can("viewer", "reports:write")).toBe(false); expect(can("viewer", "records:read")).toBe(true); });
   it("separates laboratory authorship from approval", () => { expect(can("engineer", "lab:write")).toBe(true); expect(can("engineer", "lab:review")).toBe(false); expect(can("reviewer", "lab:review")).toBe(true); });
   it("returns an indistinguishable not-found error across organizations", () => { expect(() => assertOrganizationScope("org-a", "org-b")).toThrow("Resource not found"); expect(() => assertOrganizationScope("org-a", "org-a")).not.toThrow(); });
+  it("keeps regulatory records inside the same organization boundary", () => { expect(() => assertOrganizationScope("regulatory-org-b", "regulatory-org-a")).toThrow("Resource not found"); expect(() => assertOrganizationScope("regulatory-org-a", "regulatory-org-a")).not.toThrow(); });
 });

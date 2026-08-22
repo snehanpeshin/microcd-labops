@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ChevronDown, ClipboardCheck, FileText, FileUp, FlaskConical, FolderKanban, Gauge, GitBranch, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
+import { Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ChevronDown, ClipboardCheck, Compass, FileText, FileUp, FlaskConical, FolderKanban, Gauge, GitBranch, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = { href:string; label:string; shortLabel:string; icon:LucideIcon };
@@ -26,6 +26,7 @@ const navigationGroups: { label:string; primary?:boolean; items:NavigationItem[]
   ]},
   { label:"Evidence", items:[
     { href:"/app/reports",label:"Engineering Reports",shortLabel:"Reports",icon:FileText },
+    { href:"/app/regulatory",label:"Regulatory Navigator",shortLabel:"Regulatory",icon:Compass },
     { href:"/app/tasks",label:"Tasks",shortLabel:"Tasks",icon:ListTodo },
     { href:"/app/imports",label:"CSV Imports",shortLabel:"Imports",icon:FileUp },
     { href:"/app/analytics",label:"Pilot Analytics",shortLabel:"Analytics",icon:BarChart3 },
