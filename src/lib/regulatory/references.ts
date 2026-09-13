@@ -3,6 +3,31 @@ import type { RegulatoryReference } from "./types";
 export const regulatoryReferences: RegulatoryReference[] = [
   {
     authority: "U.S. Food and Drug Administration",
+    title: "Quality Management System Regulation (QMSR)",
+    identifier: "FDA-QMSR-2026",
+    sourceUrl: "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+    version: "Effective February 2, 2026",
+    effectiveDate: "2026-02-02",
+    lastReviewedDate: "2026-09-13",
+  },
+  {
+    authority: "U.S. Food and Drug Administration",
+    title: "QMSR Design and Development",
+    identifier: "FDA-QMSR-DESIGN-DEVELOPMENT",
+    sourceUrl: "https://www.fda.gov/media/189041/download",
+    version: "CDRH Learn presentation",
+    lastReviewedDate: "2026-09-13",
+  },
+  {
+    authority: "U.S. Food and Drug Administration",
+    title: "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions",
+    identifier: "FDA-2021-D-1158",
+    sourceUrl: "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/cybersecurity-medical-devices-quality-management-system-considerations-and-content-premarket",
+    version: "Final guidance, February 2026",
+    lastReviewedDate: "2026-09-13",
+  },
+  {
+    authority: "U.S. Food and Drug Administration",
     title: "Classify Your Medical Device",
     identifier: "FDA-CDRH-CLASSIFY",
     sourceUrl: "https://www.fda.gov/medical-devices/overview-device-regulation/classify-your-medical-device",

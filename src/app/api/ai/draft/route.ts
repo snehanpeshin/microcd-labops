@@ -4,10 +4,11 @@ import { z } from "zod";
 import { getWorkspaceIdentity } from "@/lib/auth";
 import { appConfig } from "@/lib/config";
 import { can } from "@/lib/security/permissions";
+import { dlpSummary, scanAndSanitize } from "@/lib/security/dlp";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const requestSchema = z.object({ reportId: z.string().uuid(), projectId: z.string().uuid(), section: z.enum(["executive_summary", "methodology", "results", "conclusion"]), objective: z.string().min(10).max(6000), evidence: z.string().max(12000).default(""), criteriaSummary: z.string().max(6000).default("") });
+const requestSchema = z.object({ reportId: z.string().uuid(), projectId: z.string().uuid(), section: z.enum(["executive_summary", "methodology", "results", "conclusion"]), objective: z.string().min(10).max(6000), evidence: z.string().max(12000).default(""), criteriaSummary: z.string().max(6000).default(""), confirmedTransfer: z.literal(true) });
 
 export async function POST(request: Request) {
   const identity = await getWorkspaceIdentity();
@@ -24,6 +25,8 @@ export async function POST(request: Request) {
   if (organization.error || !organization.data?.ai_enabled) return NextResponse.json({ error: "AI drafting is not enabled by this organization" }, { status: 403 });
   if (report.error || !report.data) return NextResponse.json({ error: "Report not found" }, { status: 404 });
   if (report.data.status === "approved") return NextResponse.json({ error: "Approved report revisions are immutable" }, { status: 409 });
+  const objective=scanAndSanitize(parsed.data.objective),evidence=scanAndSanitize(parsed.data.evidence),criteria=scanAndSanitize(parsed.data.criteriaSummary),scans=[objective,evidence,criteria],blocked=scans.some((item)=>item.blocked),summary={blocked,redacted:scans.some((item)=>item.redacted),findings:scans.flatMap((item)=>dlpSummary(item).findings)};
+  if(blocked){await admin.from("operational_events").insert({correlation_id:crypto.randomUUID(),organization_id:identity.organizationId,category:"security",severity:"warning",code:"ai_dlp_blocked",safe_message:"AI report request blocked before transmission",metadata:summary});return NextResponse.json({error:"A secret or credential was detected. It was not sent to the AI service. Remove or rotate it, then try again.",dlp:summary},{status:422});}
   const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
   const usage = await admin.from("ai_usage").select("id", { count: "exact", head: true }).eq("organization_id", identity.organizationId).gte("created_at", monthStart.toISOString());
   if ((usage.count ?? 0) >= organization.data.ai_monthly_limit) return NextResponse.json({ error: "Monthly AI usage limit reached" }, { status: 429 });
@@ -31,9 +34,9 @@ export async function POST(request: Request) {
   if (!rateLimit.allowed) return NextResponse.json({ error: "AI request limit reached. Try again later." }, { status: 429 });
   const model = process.env.OPENAI_MODEL ?? "gpt-5.6-terra"; const promptVersion = "engineering-section-v3"; const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
-    const response = await client.responses.create({ model, reasoning:{effort:"none"}, text:{verbosity:"low"}, max_output_tokens:1200, input: [{ role: "system", content: "Produce one concise engineering-report section using only the supplied evidence. Success means: preserve every stated measurement and criterion exactly; separate direct observation from interpretation; use 'not provided' when evidence is missing; add no standards, approvals, identities, causes, claims, or conclusions that the evidence does not support; return plain text only. This is a suggestion for explicit human review, never a scientific decision, calculation, approval, or signature." }, { role: "user", content: `Requested section: ${parsed.data.section}\n\nObjective:\n${parsed.data.objective}\n\nExisting report evidence:\n${parsed.data.evidence || "Not provided"}\n\nDeterministic criteria summary:\n${parsed.data.criteriaSummary || "Not provided"}` }] });
+    const response = await client.responses.create({ model, store:false, reasoning:{effort:"none"}, text:{verbosity:"low"}, max_output_tokens:1200, input: [{ role: "system", content: "Produce one concise engineering-report section using only the supplied evidence. Success means: preserve every stated measurement and criterion exactly; separate direct observation from interpretation; use 'not provided' when evidence is missing; add no standards, approvals, identities, causes, claims, or conclusions that the evidence does not support; return plain text only. This is a suggestion for explicit human review, never a scientific decision, calculation, approval, or signature." }, { role: "user", content: `Requested section: ${parsed.data.section}\n\nObjective:\n${objective.safeText}\n\nExisting report evidence:\n${evidence.safeText || "Not provided"}\n\nDeterministic criteria summary:\n${criteria.safeText || "Not provided"}` }] });
     const inputTokens = response.usage?.input_tokens ?? 0; const outputTokens = response.usage?.output_tokens ?? 0; const inputRate = Number(process.env.OPENAI_INPUT_COST_PER_MILLION ?? 0); const outputRate = Number(process.env.OPENAI_OUTPUT_COST_PER_MILLION ?? 0); const estimatedCost = (inputTokens * inputRate + outputTokens * outputRate) / 1_000_000;
     await admin.from("ai_usage").insert({ organization_id: identity.organizationId, user_id: identity.userId, report_id: parsed.data.reportId, prompt_version: promptVersion, model, input_tokens: inputTokens, output_tokens: outputTokens, estimated_cost_usd: estimatedCost });
-    return NextResponse.json({ suggestion: response.output_text, source: "ai-assisted", requiresHumanAcceptance: true, promptVersion, model, generatedAt: new Date().toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ suggestion: response.output_text, source: "ai-assisted", requiresHumanAcceptance: true, promptVersion, model, generatedAt: new Date().toISOString(), dlp:summary }, { headers: { "Cache-Control": "private, no-store" } });
   } catch { await admin.from("operational_events").insert({ correlation_id: crypto.randomUUID(), organization_id: identity.organizationId, category: "ai", severity: "error", code: "ai_generation_failed", safe_message: "AI drafting request failed" }); return NextResponse.json({ error: "AI drafting is temporarily unavailable" }, { status: 502 }); }
 }
