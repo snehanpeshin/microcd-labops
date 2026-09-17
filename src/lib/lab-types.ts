@@ -3,7 +3,7 @@ export type ExperimentStatus = "Draft" | "Planned" | "Ready" | "Running" | "Paus
 
 export interface Experiment {
   id: string; code: string; title: string; projectId: string; projectName: string; objective: string;
-  owner: string; type: string; protocolVersionId?: string; protocolLabel?: string; startDate?: string;
+  owner: string; type: string; protocolVersionId?: string; protocolLabel?: string; protocolStatus?: ProtocolVersion["status"]; startDate?: string;
   completionDate?: string; status: ExperimentStatus; priority: Priority; notes: string; results: string;
   observations: string; conclusions: string; tags: string[]; updatedAt: string;
 }

@@ -41,16 +41,16 @@ function filterDemo<T>(rows: T[], filters: RegistryFilters, searchable: (row: T)
 export async function listExperiments(identity: WorkspaceIdentity, filters: RegistryFilters = {}): Promise<Experiment[]> {
   if (identity.demo) return filterDemo(demoExperiments, filters, (row) => `${row.code} ${row.title} ${row.owner} ${row.projectName} ${row.tags.join(" ")}`);
   const supabase = await createClient();
-  let query = supabase.from("experiments").select("id,code,title,project_id,objective,owner_id,experiment_type,protocol_version_id,start_date,completion_date,status,priority,notes,results,observations,conclusions,tags,updated_at,project:projects(name),protocol_version:protocol_versions(version,protocol:protocols(code))").eq("organization_id", identity.organizationId).is("deleted_at", null).order("updated_at", { ascending: false }).limit(200);
+  let query = supabase.from("experiments").select("id,code,title,project_id,objective,owner_id,experiment_type,protocol_version_id,start_date,completion_date,status,priority,notes,results,observations,conclusions,tags,updated_at,project:projects(name),protocol_version:protocol_versions(version,status,protocol:protocols(code))").eq("organization_id", identity.organizationId).is("deleted_at", null).order("updated_at", { ascending: false }).limit(200);
   if (filters.status) query = query.eq("status", filters.status);
   if (filters.q) { const term=safeFilterTerm(filters.q); if(term) query = query.or(`code.ilike.%${term}%,title.ilike.%${term}%,objective.ilike.%${term}%`); }
   const result = await query;
   const rows=requireData(result.data, result.error); const names=await loadProfileNames(rows.map(row=>row.owner_id));
   return rows.map((row) => {
     const project = relatedOne(row.project as RelatedNamedRecord | RelatedNamedRecord[] | null);
-    const protocolVersion = relatedOne(row.protocol_version as unknown as { version: number; protocol: { code: string } | { code: string }[] | null } | null);
+    const protocolVersion = relatedOne(row.protocol_version as unknown as { version: number; status:string; protocol: { code: string } | { code: string }[] | null } | null);
     const protocol = relatedOne(protocolVersion?.protocol);
-    return { id:row.id, code:row.code, title:row.title, projectId:row.project_id ?? "", projectName:project?.name ?? "Unassigned", objective:row.objective, owner:names.get(String(row.owner_id))??"Unassigned", type:row.experiment_type, protocolVersionId:row.protocol_version_id ?? undefined, protocolLabel:protocolVersion && protocol ? `${protocol.code} v${protocolVersion.version}` : undefined, startDate:row.start_date ?? undefined, completionDate:row.completion_date ?? undefined, status:titleCase(row.status) as Experiment["status"], priority:titleCase(row.priority) as Experiment["priority"], notes:row.notes, results:row.results, observations:row.observations, conclusions:row.conclusions, tags:row.tags ?? [], updatedAt:row.updated_at };
+    return { id:row.id, code:row.code, title:row.title, projectId:row.project_id ?? "", projectName:project?.name ?? "Unassigned", objective:row.objective, owner:names.get(String(row.owner_id))??"Unassigned", type:row.experiment_type, protocolVersionId:row.protocol_version_id ?? undefined, protocolLabel:protocolVersion && protocol ? `${protocol.code} v${protocolVersion.version}` : undefined, protocolStatus:protocolVersion?.status?titleCase(protocolVersion.status) as Experiment["protocolStatus"]:undefined, startDate:row.start_date ?? undefined, completionDate:row.completion_date ?? undefined, status:titleCase(row.status) as Experiment["status"], priority:titleCase(row.priority) as Experiment["priority"], notes:row.notes, results:row.results, observations:row.observations, conclusions:row.conclusions, tags:row.tags ?? [], updatedAt:row.updated_at };
   });
 }
 

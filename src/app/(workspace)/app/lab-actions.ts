@@ -55,6 +55,25 @@ export async function createExperiment(formData: FormData) {
   revalidatePath("/app"); revalidatePath("/app/experiments"); redirect(`/app/experiments/${data.id}`);
 }
 
+export async function updateExperimentSetup(formData: FormData) {
+  const { identity } = await context("lab:write");
+  const input = experimentSchema.extend({ experimentId:z.string().uuid() }).omit({ projectId:true }).parse({
+    experimentId:textField(formData,"experimentId"), title:textField(formData,"title"), objective:textField(formData,"objective"),
+    type:textField(formData,"type"), protocolVersionId:textField(formData,"protocolVersionId"), startDate:textField(formData,"startDate"),
+    priority:textField(formData,"priority"), notes:textField(formData,"notes"), tags:textField(formData,"tags"),
+  });
+  const admin=createAdminClient();
+  const {data:current,error:loadError}=await admin.from("experiments").select("id,code,status").eq("id",input.experimentId).eq("organization_id",identity.organizationId).is("deleted_at",null).maybeSingle();
+  if(loadError||!current)throw new Error("Experiment not found.");
+  if(!["draft","planned","ready","paused"].includes(current.status))throw new Error("Setup can only be edited before execution. Pause or create a controlled follow-up experiment instead.");
+  if(input.protocolVersionId)await verifyReference("protocol_versions",input.protocolVersionId,identity.organizationId);
+  const nextStatus=input.startDate?"planned":"draft";
+  const {error}=await admin.from("experiments").update({title:input.title,objective:input.objective,experiment_type:input.type,protocol_version_id:optionalUuid(input.protocolVersionId),start_date:optionalDate(input.startDate),priority:input.priority,notes:input.notes,tags:tags(input.tags),status:nextStatus,updated_at:new Date().toISOString()}).eq("id",input.experimentId).eq("organization_id",identity.organizationId);
+  if(error)throw new Error("Experiment setup could not be updated.");
+  await recordActivity(identity.organizationId,identity.userId,"experiment_setup_updated","Experiment",input.experimentId,`${current.code} setup updated; readiness returned to ${nextStatus}`);
+  revalidatePath("/app");revalidatePath("/app/experiments");revalidatePath(`/app/experiments/${input.experimentId}`);
+}
+
 export async function transitionExperiment(formData: FormData) {
   const { identity } = await context("records:read");
   const input = z.object({ experimentId:z.string().uuid(), status:z.enum(["draft","planned","ready","running","paused","completed","failed","cancelled","under_review","approved"]), note:z.string().max(2000) }).parse({ experimentId:textField(formData,"experimentId"), status:textField(formData,"status"), note:textField(formData,"note") });
