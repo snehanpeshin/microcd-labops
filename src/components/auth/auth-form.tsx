@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,6 +13,7 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(formData: FormData) {
     setLoading(true); setError(""); setMessage("");
@@ -54,13 +55,13 @@ export function AuthForm({ mode, next = "/app" }: { mode: AuthMode; next?: strin
     finally { setLoading(false); }
   }
 
-  return <form action={submit} className="space-y-4">
+  return <form action={submit} className="space-y-4" aria-label={mode === "login" ? "Sign in to LabOps" : undefined}>
     {mode === "signup" && <div className="form-field"><label htmlFor="fullName">Full name</label><input id="fullName" name="fullName" autoComplete="name" required minLength={2} /></div>}
-    <div className="form-field"><label htmlFor="email">Work email</label><input id="email" name="email" type="email" autoComplete="email" required /></div>
-    {mode !== "forgot" && mode !== "resend" && <div className="form-field"><label htmlFor="password">Password</label><input id="password" name="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={10} /><span className="text-xs text-slate-500">Use at least 10 characters.</span></div>}
+    <div className="form-field"><label htmlFor="email">Work email</label><div className="auth-input-wrap"><Mail size={17} aria-hidden="true"/><input id="email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="you@company.com" required /></div></div>
+    {mode !== "forgot" && mode !== "resend" && <div className="form-field"><label htmlFor="password">Password</label><div className="auth-input-wrap"><LockKeyhole size={17} aria-hidden="true"/><input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder="Enter your password" required minLength={10}/><button type="button" className="auth-password-toggle" onClick={()=>setShowPassword((value)=>!value)} aria-label={showPassword?"Hide password":"Show password"}>{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></div><span className="text-xs text-slate-500">Use at least 10 characters.</span></div>}
     {mode === "signup" && <label className="flex items-start gap-3 text-xs font-normal leading-5 text-slate-600"><input name="terms" type="checkbox" required className="mt-0.5 size-4 min-h-0" />I agree to the Terms of Use and acknowledge the Privacy Policy. Do not enter patient or regulated production data during evaluation.</label>}
     {error && <p role="alert" className="flex gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800"><AlertCircle size={17} className="mt-0.5 shrink-0" />{error}</p>}
     {message && <p role="status" className="flex gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800"><CheckCircle2 size={17} className="mt-0.5 shrink-0" />{message}</p>}
-    <Button disabled={loading} className="w-full">{loading ? "Working…" : mode === "login" ? "Sign in" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Resend confirmation"}</Button>
+    <Button disabled={loading} className="w-full shadow-sm">{loading ? "Working securely…" : mode === "login" ? "Continue to workspace" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Resend confirmation"}</Button>
   </form>;
 }
