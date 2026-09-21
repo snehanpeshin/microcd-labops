@@ -7,13 +7,24 @@ export interface QualityDocumentRevision {id:string;revision:number;content:stri
 export interface QualityDocumentReview {id:string;decision:"submitted"|"changes_requested"|"approved";comment:string;reviewer:string;createdAt:string;}
 export interface QualityDocument {id:string;projectId:string;profileId?:string;documentKey:string;title:string;phase:number;qualityFile:string;basis:string;applicability:"core"|"conditional"|"business";startWeek:number;endWeek:number|null;status:QualityDocumentStatus;currentRevision:number;owner:string;updatedAt:string;latestRevision?:QualityDocumentRevision;reviews:QualityDocumentReview[];}
 
-function one<T>(value:T|T[]|null|undefined){return Array.isArray(value)?value[0]:value;}
-function name(value:{full_name:string}|{full_name:string}[]|null|undefined,fallback:string){return one(value)?.full_name??fallback;}
-
 export async function listQualityDocuments(identity:WorkspaceIdentity,projectId?:string):Promise<QualityDocument[]>{
   if(identity.demo){return qualityDocumentCatalog.slice(0,7).map((item,index)=>({id:`demo-${item.key}`,projectId:"proj_flow",documentKey:item.key,title:item.title,phase:item.phase,qualityFile:item.qualityFile,basis:item.basis,applicability:item.applicability,startWeek:item.startWeek,endWeek:item.endWeek,status:index===0?"in_review":index===1?"approved":"draft",currentRevision:1,owner:"Demo Engineer",updatedAt:"2026-09-13T12:00:00Z",latestRevision:{id:`demo-rev-${index}`,revision:1,content:documentSkeleton(item,"Demo device"),source:"template",aiMetadata:{},dlpSummary:{},createdBy:"Demo Engineer",createdAt:"2026-09-13T12:00:00Z"},reviews:[]}));}
-  const supabase=await createClient();let query=supabase.from("quality_documents").select("*,owner:profiles!quality_documents_owner_id_fkey(full_name),quality_document_revisions(id,revision,content,source,ai_metadata,dlp_summary,created_at,creator:profiles!quality_document_revisions_created_by_fkey(full_name)),quality_document_reviews(id,decision,comment,created_at,reviewer:profiles!quality_document_reviews_reviewer_id_fkey(full_name))").eq("organization_id",identity.organizationId).order("lifecycle_phase").order("title");if(projectId)query=query.eq("project_id",projectId);const result=await query;if(result.error)throw new Error("Quality documents could not be loaded.");
-  return result.data.map((row)=>{const revisions=[...(row.quality_document_revisions??[])].sort((a,b)=>b.revision-a.revision);const latest=revisions[0];return {id:row.id,projectId:row.project_id,profileId:row.regulatory_profile_id??undefined,documentKey:row.document_key,title:row.title,phase:row.lifecycle_phase,qualityFile:row.quality_file,basis:row.regulatory_basis,applicability:row.applicability,startWeek:row.planned_start_week,endWeek:row.planned_end_week,status:row.status,currentRevision:row.current_revision,owner:name(row.owner,"Unassigned"),updatedAt:row.updated_at,latestRevision:latest?{id:latest.id,revision:latest.revision,content:latest.content,source:latest.source,aiMetadata:latest.ai_metadata??{},dlpSummary:latest.dlp_summary??{},createdBy:name(latest.creator,"Unknown"),createdAt:latest.created_at}:undefined,reviews:[...(row.quality_document_reviews??[])].sort((a,b)=>b.created_at.localeCompare(a.created_at)).map((review)=>({id:review.id,decision:review.decision,comment:review.comment,reviewer:name(review.reviewer,"Unknown"),createdAt:review.created_at}))};});
+  const supabase=await createClient();
+  let query=supabase.from("quality_documents").select("*,quality_document_revisions(id,revision,content,source,ai_metadata,dlp_summary,created_by,created_at),quality_document_reviews(id,decision,comment,reviewer_id,created_at)").eq("organization_id",identity.organizationId).order("lifecycle_phase").order("title");
+  if(projectId)query=query.eq("project_id",projectId);
+  const result=await query;
+  if(result.error)throw new Error("Quality documents could not be loaded.");
+
+  const profileIds=[...new Set(result.data.flatMap((row)=>[
+    row.owner_id,
+    ...(row.quality_document_revisions??[]).map((revision:{created_by:string})=>revision.created_by),
+    ...(row.quality_document_reviews??[]).map((review:{reviewer_id:string})=>review.reviewer_id),
+  ]).filter((id):id is string=>Boolean(id)))];
+  const profileResult=profileIds.length?await supabase.from("profiles").select("id,full_name").in("id",profileIds):{data:[],error:null};
+  if(profileResult.error)throw new Error("Quality document authors could not be loaded.");
+  const profileNames=new Map((profileResult.data??[]).map((profile)=>[profile.id,profile.full_name]));
+
+  return result.data.map((row)=>{const revisions=[...(row.quality_document_revisions??[])].sort((a,b)=>b.revision-a.revision);const latest=revisions[0];return {id:row.id,projectId:row.project_id,profileId:row.regulatory_profile_id??undefined,documentKey:row.document_key,title:row.title,phase:row.lifecycle_phase,qualityFile:row.quality_file,basis:row.regulatory_basis,applicability:row.applicability,startWeek:row.planned_start_week,endWeek:row.planned_end_week,status:row.status,currentRevision:row.current_revision,owner:profileNames.get(row.owner_id)??"Unassigned",updatedAt:row.updated_at,latestRevision:latest?{id:latest.id,revision:latest.revision,content:latest.content,source:latest.source,aiMetadata:latest.ai_metadata??{},dlpSummary:latest.dlp_summary??{},createdBy:profileNames.get(latest.created_by)??"Unknown",createdAt:latest.created_at}:undefined,reviews:[...(row.quality_document_reviews??[])].sort((a,b)=>b.created_at.localeCompare(a.created_at)).map((review)=>({id:review.id,decision:review.decision,comment:review.comment,reviewer:profileNames.get(review.reviewer_id)??"Unknown",createdAt:review.created_at}))};});
 }
 
 export async function getQualityDocument(identity:WorkspaceIdentity,id:string){return (await listQualityDocuments(identity)).find((item)=>item.id===id)??null;}
