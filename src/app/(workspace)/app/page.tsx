@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     ...equipment.filter((item) => item.status === "Calibration required" || item.status === "Out of service").map((item) => ({ id: item.id, title: `${item.code} · ${item.name}`, detail: item.status, href: "/app/equipment" })),
   ];
   const quickActions: QuickAction[] = identity.demo
-    ? [["Explore experiments", "/app/experiments", FlaskConical], ["Open sample registry", "/app/samples", TestTube2], ["Review inventory", "/app/inventory", Warehouse], ["View quality tasks", "/app/tasks", ClipboardList], ["See document control", "/app/documents", FileUp], ["View pilot analytics", "/app/analytics", Sparkles]]
+    ? [["Explore experiments", "/app/experiments", FlaskConical], ["Open sample registry", "/app/samples", TestTube2], ["Review inventory", "/app/inventory", Warehouse], ["View quality tasks", "/app/tasks", ClipboardList], ["Open document dockets", "/app/dockets", FileUp], ["View pilot analytics", "/app/analytics", Sparkles]]
     : [["New experiment", "/app/experiments?new=1", FlaskConical], ["Scan sample", "/app/samples/scan", ScanLine], ["Adjust inventory", "/app/inventory", Warehouse], ["Create task", "/app/tasks?new=1", ClipboardList], ["Import CSV", "/app/imports", FileUp], ["Pilot analytics", "/app/analytics", Sparkles]];
 
   return <>

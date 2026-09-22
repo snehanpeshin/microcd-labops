@@ -26,7 +26,7 @@ const navigationGroups: { label:string; primary?:boolean; items:NavigationItem[]
   ]},
   { label:"Evidence", items:[
     { href:"/app/reports",label:"Engineering Reports",shortLabel:"Reports",icon:FileText },
-    { href:"/app/documents",label:"Quality Document Studio",shortLabel:"Quality Docs",icon:FileCheck2 },
+    { href:"/app/dockets",label:"Engineering Document Dockets",shortLabel:"Dockets",icon:FileCheck2 },
     { href:"/app/regulatory",label:"Regulatory Navigator",shortLabel:"Regulatory",icon:Compass },
     { href:"/app/tasks",label:"Tasks",shortLabel:"Tasks",icon:ListTodo },
     { href:"/app/imports",label:"CSV Imports",shortLabel:"Imports",icon:FileUp },
@@ -43,6 +43,7 @@ const navigationGroups: { label:string; primary?:boolean; items:NavigationItem[]
 const navigation = navigationGroups.flatMap((group)=>group.items);
 
 function isCurrent(pathname: string, href: string) {
+  if (href === "/app/dockets" && pathname.startsWith("/app/documents")) return true;
   return href === "/app" ? pathname === href : pathname.startsWith(href);
 }
 
