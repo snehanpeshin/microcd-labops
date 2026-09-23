@@ -10,6 +10,7 @@ type NavigationItem = { href:string; label:string; shortLabel:string; icon:Lucid
 const navigationGroups: { label:string; primary?:boolean; items:NavigationItem[] }[] = [
   { label:"Run", primary:true, items:[
     { href:"/app",label:"Dashboard",shortLabel:"Dashboard",icon:Gauge },
+    { href:"/app/assistant",label:"AI Copilot",shortLabel:"AI Copilot",icon:Sparkles },
     { href:"/app/projects",label:"Projects",shortLabel:"Projects",icon:FolderKanban },
     { href:"/app/experiments",label:"Experiments",shortLabel:"Experiments",icon:FlaskConical },
     { href:"/app/builds",label:"Device Builds",shortLabel:"Builds",icon:GitBranch },

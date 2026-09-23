@@ -39,7 +39,7 @@ export default async function DashboardPage() {
   ];
   const quickActions: QuickAction[] = identity.demo
     ? [["Explore experiments", "/app/experiments", FlaskConical], ["Open sample registry", "/app/samples", TestTube2], ["Review inventory", "/app/inventory", Warehouse], ["View quality tasks", "/app/tasks", ClipboardList], ["Open document dockets", "/app/dockets", FileUp], ["View pilot analytics", "/app/analytics", Sparkles]]
-    : [["New experiment", "/app/experiments?new=1", FlaskConical], ["Scan sample", "/app/samples/scan", ScanLine], ["Adjust inventory", "/app/inventory", Warehouse], ["Create task", "/app/tasks?new=1", ClipboardList], ["Import CSV", "/app/imports", FileUp], ["Pilot analytics", "/app/analytics", Sparkles]];
+    : [["New experiment", "/app/experiments?new=1", FlaskConical], ["Scan sample", "/app/samples/scan", ScanLine], ["Adjust inventory", "/app/inventory", Warehouse], ["Create task", "/app/tasks?new=1", ClipboardList], ["Import CSV", "/app/imports", FileUp], ["Ask AI Copilot", "/app/assistant", Sparkles]];
 
   return <>
     <PageHeader eyebrow="Operational command center" title="LabOps dashboard" description="The work, scientific records, and resources that need attention now." actions={!identity.demo ? <><ButtonLink href="/app/experiments?new=1"><Plus size={16}/>New experiment</ButtonLink><ButtonLink href="/app/samples/scan" variant="secondary"><ScanLine size={16}/>Scan sample</ButtonLink></> : <ButtonLink href="/app/experiments">Explore experiments</ButtonLink>}/>

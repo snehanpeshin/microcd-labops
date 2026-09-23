@@ -208,6 +208,8 @@ label { color: #334155; font-size: 0.82rem; font-weight: 600; }
 .workspace-identity p { overflow: hidden; margin: 0; color: var(--ink); font-size: .86rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .workspace-identity span { color: var(--muted); font-size: .72rem; text-transform: capitalize; }
 .workspace-user { display: flex; align-items: center; gap: 10px; }
+.workspace-ai-link { display: inline-flex; min-height: 38px; align-items: center; gap: 6px; border: 1px solid #ddd6fe; border-radius: 999px; padding: 0 11px; color: #5b21b6; background: #faf8ff; font-size: .75rem; font-weight: 750; transition: border-color 150ms ease, background 150ms ease, transform 150ms ease; }
+.workspace-ai-link:hover { border-color: #a78bfa; background: white; transform: translateY(-1px); }
 .workspace-user-link { display: flex; align-items: center; gap: 10px; border-radius: 999px; padding: 3px; transition: background 150ms ease, box-shadow 150ms ease; }
 .workspace-user-link:hover { background: #eef8f6; }
 .workspace-user-link:focus-visible { outline: 2px solid #0f766e; outline-offset: 3px; }
