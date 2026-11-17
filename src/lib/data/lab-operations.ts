@@ -1,3 +1,5 @@
+import { filterInventoryAttention } from "@/lib/operations-focus";
+import { labLabel } from "@/lib/lab-labels";
 import { createClient } from "@/lib/supabase/server";
 import type { WorkspaceIdentity } from "@/lib/auth";
 import type { EquipmentEvent, EquipmentRecord, Experiment, GlobalSearchResult, InventoryItem, InventoryTransaction, LabAttachment, LabTask, ProtocolRecord, ProtocolVersion, Sample } from "@/lib/lab-types";
@@ -25,10 +27,6 @@ async function loadProfileNames(ids: (string | null | undefined)[]) {
   return new Map((result.data ?? []).map((profile) => [String(profile.id), profile.full_name || "Unassigned"]));
 }
 
-function titleCase(value: string) {
-  return value.split("_").map((part) => part ? part[0].toUpperCase() + part.slice(1) : part).join(" ");
-}
-
 function safeFilterTerm(value: string) {
   return value.trim().replace(/[,%().]/g, " ").slice(0, 120);
 }
@@ -50,7 +48,7 @@ export async function listExperiments(identity: WorkspaceIdentity, filters: Regi
     const project = relatedOne(row.project as RelatedNamedRecord | RelatedNamedRecord[] | null);
     const protocolVersion = relatedOne(row.protocol_version as unknown as { version: number; status:string; protocol: { code: string } | { code: string }[] | null } | null);
     const protocol = relatedOne(protocolVersion?.protocol);
-    return { id:row.id, code:row.code, title:row.title, projectId:row.project_id ?? "", projectName:project?.name ?? "Unassigned", objective:row.objective, owner:names.get(String(row.owner_id))??"Unassigned", type:row.experiment_type, protocolVersionId:row.protocol_version_id ?? undefined, protocolLabel:protocolVersion && protocol ? `${protocol.code} v${protocolVersion.version}` : undefined, protocolStatus:protocolVersion?.status?titleCase(protocolVersion.status) as Experiment["protocolStatus"]:undefined, startDate:row.start_date ?? undefined, completionDate:row.completion_date ?? undefined, status:titleCase(row.status) as Experiment["status"], priority:titleCase(row.priority) as Experiment["priority"], notes:row.notes, results:row.results, observations:row.observations, conclusions:row.conclusions, tags:row.tags ?? [], updatedAt:row.updated_at };
+    return { id:row.id, code:row.code, title:row.title, projectId:row.project_id ?? "", projectName:project?.name ?? "Unassigned", objective:row.objective, owner:names.get(String(row.owner_id))??"Unassigned", type:row.experiment_type, protocolVersionId:row.protocol_version_id ?? undefined, protocolLabel:protocolVersion && protocol ? `${protocol.code} v${protocolVersion.version}` : undefined, protocolStatus:protocolVersion?.status?labLabel(protocolVersion.status) as Experiment["protocolStatus"]:undefined, startDate:row.start_date ?? undefined, completionDate:row.completion_date ?? undefined, status:labLabel(row.status) as Experiment["status"], priority:labLabel(row.priority) as Experiment["priority"], notes:row.notes, results:row.results, observations:row.observations, conclusions:row.conclusions, tags:row.tags ?? [], updatedAt:row.updated_at };
   });
 }
 
@@ -66,7 +64,7 @@ export async function listSamples(identity: WorkspaceIdentity, filters: Registry
   if (filters.q) { const term=safeFilterTerm(filters.q); if(term) query = query.or(`code.ilike.%${term}%,name.ilike.%${term}%,sample_type.ilike.%${term}%,barcode.ilike.%${term}%`); }
   const result = await query;
   const rows=requireData(result.data,result.error);const names=await loadProfileNames(rows.map(row=>row.owner_id));
-  return rows.map((row) => ({ id:row.id, code:row.code, name:row.name, type:row.sample_type, source:row.source, projectId:row.project_id ?? undefined, projectName:relatedOne(row.project as RelatedNamedRecord | RelatedNamedRecord[] | null)?.name, experimentId:row.experiment_id ?? undefined, experimentCode:relatedOne(row.experiment as { code:string } | { code:string }[] | null)?.code, parentSampleId:row.parent_sample_id ?? undefined, preparationDate:row.preparation_date ?? undefined, owner:names.get(String(row.owner_id))??"Unassigned", quantity:row.quantity === null ? undefined : Number(row.quantity), concentration:row.concentration === null ? undefined : Number(row.concentration), unit:row.unit, storageLocation:row.storage_location, freezer:row.freezer, rack:row.rack, box:row.box, position:row.position, status:titleCase(row.status) as Sample["status"], expirationDate:row.expiration_date ?? undefined, barcode:row.barcode ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
+  return rows.map((row) => ({ id:row.id, code:row.code, name:row.name, type:row.sample_type, source:row.source, projectId:row.project_id ?? undefined, projectName:relatedOne(row.project as RelatedNamedRecord | RelatedNamedRecord[] | null)?.name, experimentId:row.experiment_id ?? undefined, experimentCode:relatedOne(row.experiment as { code:string } | { code:string }[] | null)?.code, parentSampleId:row.parent_sample_id ?? undefined, preparationDate:row.preparation_date ?? undefined, owner:names.get(String(row.owner_id))??"Unassigned", quantity:row.quantity === null ? undefined : Number(row.quantity), concentration:row.concentration === null ? undefined : Number(row.concentration), unit:row.unit, storageLocation:row.storage_location, freezer:row.freezer, rack:row.rack, box:row.box, position:row.position, status:labLabel(row.status) as Sample["status"], expirationDate:row.expiration_date ?? undefined, barcode:row.barcode ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
 }
 
 export async function getSample(identity: WorkspaceIdentity, id: string) {
@@ -81,15 +79,15 @@ export async function listLabAttachments(identity: WorkspaceIdentity, recordType
 }
 
 export async function listInventory(identity: WorkspaceIdentity, filters: RegistryFilters = {}): Promise<InventoryItem[]> {
-  if (identity.demo) return filterDemo(demoInventory, filters, (row) => `${row.code} ${row.name} ${row.manufacturer} ${row.catalogNumber} ${row.lotNumber}`);
+  if (identity.demo) return filterInventoryAttention(filterDemo(demoInventory, {q:filters.q}, (row) => `${row.code} ${row.name} ${row.manufacturer} ${row.catalogNumber} ${row.lotNumber}`), filters.status);
   const supabase = await createClient();
   let query = supabase.from("inventory_items").select("id,code,name,item_type,manufacturer,catalog_number,lot_number,quantity,unit,minimum_stock,storage_location,received_date,opened_date,expiration_date,supplier_id,notes,updated_at,owner_id").eq("organization_id", identity.organizationId).is("deleted_at", null).order("updated_at", { ascending: false }).limit(250);
   if (filters.q) { const term=safeFilterTerm(filters.q); if(term) query = query.or(`code.ilike.%${term}%,name.ilike.%${term}%,manufacturer.ilike.%${term}%,catalog_number.ilike.%${term}%,lot_number.ilike.%${term}%`); }
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.owner_id));
-  const items = rows.map((row) => ({ id:row.id, code:row.code, name:row.name, type:titleCase(row.item_type) as InventoryItem["type"], manufacturer:row.manufacturer, catalogNumber:row.catalog_number, lotNumber:row.lot_number, quantity:Number(row.quantity), unit:row.unit, minimumStock:Number(row.minimum_stock), storageLocation:row.storage_location, receivedDate:row.received_date ?? undefined, openedDate:row.opened_date ?? undefined, expirationDate:row.expiration_date ?? undefined, owner:names.get(String(row.owner_id)) ?? "Unassigned", supplierId:row.supplier_id ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
-  return filters.status === "low" ? items.filter((item) => item.quantity <= item.minimumStock) : items;
+  const items = rows.map((row) => ({ id:row.id, code:row.code, name:row.name, type:labLabel(row.item_type) as InventoryItem["type"], manufacturer:row.manufacturer, catalogNumber:row.catalog_number, lotNumber:row.lot_number, quantity:Number(row.quantity), unit:row.unit, minimumStock:Number(row.minimum_stock), storageLocation:row.storage_location, receivedDate:row.received_date ?? undefined, openedDate:row.opened_date ?? undefined, expirationDate:row.expiration_date ?? undefined, owner:names.get(String(row.owner_id)) ?? "Unassigned", supplierId:row.supplier_id ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
+  return filterInventoryAttention(items, filters.status);
 }
 
 export async function listInventoryTransactions(identity: WorkspaceIdentity, itemId?: string): Promise<InventoryTransaction[]> {
@@ -100,7 +98,7 @@ export async function listInventoryTransactions(identity: WorkspaceIdentity, ite
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.created_by));
-  return rows.map((row) => ({ id:row.id, itemId:row.inventory_item_id, type:titleCase(row.transaction_type) as InventoryTransaction["type"], quantityDelta:Number(row.quantity_delta), resultingQuantity:Number(row.resulting_quantity), reason:row.reason, actor:names.get(String(row.created_by)) ?? "System", createdAt:row.created_at }));
+  return rows.map((row) => ({ id:row.id, itemId:row.inventory_item_id, type:labLabel(row.transaction_type) as InventoryTransaction["type"], quantityDelta:Number(row.quantity_delta), resultingQuantity:Number(row.resulting_quantity), reason:row.reason, actor:names.get(String(row.created_by)) ?? "System", createdAt:row.created_at }));
 }
 
 export async function listEquipment(identity: WorkspaceIdentity, filters: RegistryFilters = {}): Promise<EquipmentRecord[]> {
@@ -112,7 +110,7 @@ export async function listEquipment(identity: WorkspaceIdentity, filters: Regist
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.owner_id));
-  return rows.map((row) => ({ id:row.id, code:row.code, name:row.name, category:row.category, manufacturer:row.manufacturer, model:row.model, serialNumber:row.serial_number, location:row.location, status:titleCase(row.status) as EquipmentRecord["status"], owner:names.get(String(row.owner_id)) ?? "Unassigned", lastMaintenance:row.last_maintenance ?? undefined, nextMaintenance:row.next_maintenance ?? undefined, lastCalibration:row.last_calibration ?? undefined, nextCalibration:row.next_calibration ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
+  return rows.map((row) => ({ id:row.id, code:row.code, name:row.name, category:row.category, manufacturer:row.manufacturer, model:row.model, serialNumber:row.serial_number, location:row.location, status:labLabel(row.status) as EquipmentRecord["status"], owner:names.get(String(row.owner_id)) ?? "Unassigned", lastMaintenance:row.last_maintenance ?? undefined, nextMaintenance:row.next_maintenance ?? undefined, lastCalibration:row.last_calibration ?? undefined, nextCalibration:row.next_calibration ?? undefined, notes:row.notes, updatedAt:row.updated_at }));
 }
 
 export async function getEquipment(identity:WorkspaceIdentity,id:string){return (await listEquipment(identity)).find(record=>record.id===id)??null;}
@@ -120,7 +118,7 @@ export async function listEquipmentEvents(identity:WorkspaceIdentity,equipmentId
  if(identity.demo) return [];
  const supabase=await createClient();const result=await supabase.from("equipment_events").select("id,equipment_id,event_type,performed_at,previous_status,new_status,summary,next_due_date,performed_by").eq("organization_id",identity.organizationId).eq("equipment_id",equipmentId).order("performed_at",{ascending:false}).limit(100);
  const rows=requireData(result.data,result.error);const names=await loadProfileNames(rows.map(row=>row.performed_by));
- return rows.map(row=>({id:row.id,equipmentId:row.equipment_id,type:titleCase(row.event_type) as EquipmentEvent["type"],performedAt:row.performed_at,actor:names.get(String(row.performed_by))??"Unassigned",previousStatus:row.previous_status??undefined,newStatus:row.new_status??undefined,summary:row.summary,nextDueDate:row.next_due_date??undefined}));
+ return rows.map(row=>({id:row.id,equipmentId:row.equipment_id,type:labLabel(row.event_type) as EquipmentEvent["type"],performedAt:row.performed_at,actor:names.get(String(row.performed_by))??"Unassigned",previousStatus:row.previous_status??undefined,newStatus:row.new_status??undefined,summary:row.summary,nextDueDate:row.next_due_date??undefined}));
 }
 
 export async function listProtocols(identity: WorkspaceIdentity, filters: RegistryFilters = {}): Promise<ProtocolRecord[]> {
@@ -132,7 +130,7 @@ export async function listProtocols(identity: WorkspaceIdentity, filters: Regist
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.owner_id));
-  return rows.map((row) => { const latest = [...row.protocol_versions].sort((a,b) => b.version-a.version)[0]; return { id:row.id, code:row.code, name:row.name, description:row.description, owner:names.get(String(row.owner_id)) ?? "Unassigned", status:titleCase(row.status) as ProtocolRecord["status"], latestVersion:latest?.version, latestVersionId:latest?.id, latestVersionStatus:latest ? titleCase(latest.status) as ProtocolRecord["latestVersionStatus"] : undefined, updatedAt:row.updated_at }; });
+  return rows.map((row) => { const latest = [...row.protocol_versions].sort((a,b) => b.version-a.version)[0]; return { id:row.id, code:row.code, name:row.name, description:row.description, owner:names.get(String(row.owner_id)) ?? "Unassigned", status:labLabel(row.status) as ProtocolRecord["status"], latestVersion:latest?.version, latestVersionId:latest?.id, latestVersionStatus:latest ? labLabel(latest.status) as ProtocolRecord["latestVersionStatus"] : undefined, updatedAt:row.updated_at }; });
 }
 
 export async function listProtocolVersions(identity: WorkspaceIdentity, protocolId?: string): Promise<ProtocolVersion[]> {
@@ -143,7 +141,7 @@ export async function listProtocolVersions(identity: WorkspaceIdentity, protocol
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.authored_by));
-  return rows.map((row) => ({ id:row.id, protocolId:row.protocol_id, version:row.version, title:row.title, steps:row.steps, materials:row.materials, equipment:row.equipment, notes:row.notes, status:titleCase(row.status) as ProtocolVersion["status"], author:names.get(String(row.authored_by)) ?? "Unassigned", approvedAt:row.approved_at ?? undefined, createdAt:row.created_at }));
+  return rows.map((row) => ({ id:row.id, protocolId:row.protocol_id, version:row.version, title:row.title, steps:row.steps, materials:row.materials, equipment:row.equipment, notes:row.notes, status:labLabel(row.status) as ProtocolVersion["status"], author:names.get(String(row.authored_by)) ?? "Unassigned", approvedAt:row.approved_at ?? undefined, createdAt:row.created_at }));
 }
 
 export async function listLabTasks(identity: WorkspaceIdentity, filters: RegistryFilters = {}): Promise<LabTask[]> {
@@ -155,7 +153,7 @@ export async function listLabTasks(identity: WorkspaceIdentity, filters: Registr
   const result = await query;
   const rows = requireData(result.data, result.error);
   const names = await loadProfileNames(rows.map((row) => row.assigned_to));
-  return rows.map((row) => ({ id:row.id, title:row.title, description:row.description, assignee:names.get(String(row.assigned_to)) ?? "Unassigned", experimentId:row.experiment_id ?? undefined, experimentCode:relatedOne(row.experiment as {code:string}|{code:string}[]|null)?.code, projectId:row.project_id ?? undefined, projectName:relatedOne(row.project as RelatedNamedRecord|RelatedNamedRecord[]|null)?.name, dueDate:row.due_date ?? undefined, priority:titleCase(row.priority) as LabTask["priority"], status:titleCase(row.status) as LabTask["status"], notes:row.notes, updatedAt:row.updated_at }));
+  return rows.map((row) => ({ id:row.id, title:row.title, description:row.description, assignee:names.get(String(row.assigned_to)) ?? "Unassigned", experimentId:row.experiment_id ?? undefined, experimentCode:relatedOne(row.experiment as {code:string}|{code:string}[]|null)?.code, projectId:row.project_id ?? undefined, projectName:relatedOne(row.project as RelatedNamedRecord|RelatedNamedRecord[]|null)?.name, dueDate:row.due_date ?? undefined, priority:labLabel(row.priority) as LabTask["priority"], status:labLabel(row.status) as LabTask["status"], notes:row.notes, updatedAt:row.updated_at }));
 }
 
 export async function globalSearch(identity: WorkspaceIdentity, rawQuery: string): Promise<GlobalSearchResult[]> {
