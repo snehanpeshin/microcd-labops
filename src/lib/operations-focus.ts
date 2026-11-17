@@ -1,4 +1,5 @@
 import type { EquipmentRecord, Experiment, InventoryItem, LabTask, Sample } from "./lab-types";
+import type { OperationsCase } from "./medical-operations/workflows";
 import type { Report } from "./types";
 
 /** Date-only laboratory deadlines use calendar days in UTC, independent of server timezone. */
@@ -35,12 +36,12 @@ export function filterTasks(tasks: LabTask[], filters: TaskFilters, now = new Da
   });
 }
 
-export type AttentionCategory = "tasks" | "samples" | "inventory" | "equipment" | "reviews";
+export type AttentionCategory = "tasks" | "samples" | "inventory" | "equipment" | "reviews" | "operations";
 export interface AttentionItem {
   id: string; category: AttentionCategory; title: string; detail: string; owner: string;
   urgency: "urgent" | "action" | "upcoming"; href: string; dueDate?: string;
 }
-export interface OperationsRecords { tasks: LabTask[]; samples: Sample[]; inventory: InventoryItem[]; equipment: EquipmentRecord[]; experiments: Experiment[]; reports: Pick<Report, "id" | "number" | "title" | "status" | "author" | "reviewer">[]; }
+export interface OperationsRecords { operations?: OperationsCase[]; tasks: LabTask[]; samples: Sample[]; inventory: InventoryItem[]; equipment: EquipmentRecord[]; experiments: Experiment[]; reports: Pick<Report, "id" | "number" | "title" | "status" | "author" | "reviewer">[]; }
 export function buildAttentionQueue(records: OperationsRecords, now = new Date()): AttentionItem[] {
   const result: AttentionItem[] = [];
   for (const task of records.tasks) {
@@ -82,6 +83,12 @@ export function buildAttentionQueue(records: OperationsRecords, now = new Date()
   for (const item of records.reports) {
     if (item.status !== "Ready for review" && item.status !== "Changes requested") continue;
     result.push({id:`report:${item.id}`, category:"reviews", title:`${item.number} · ${item.title}`, detail:`Report ${item.status.toLowerCase()}`, owner:item.status === "Ready for review" ? item.reviewer : item.author, urgency:"action", href:`/app/reports/${encodeURIComponent(item.id)}`});
+  }
+  for(const item of records.operations??[]){
+    if(item.state==="closed")continue;
+    const days=daysUntil(item.dueDate,now),overdue=days!==null&&days<0;
+    if(!overdue&&item.priority!=="critical"&&item.priority!=="high"&&item.state!=="in_review")continue;
+    result.push({id:`operations:${item.id}`,category:"operations",title:item.title,detail:item.state==="in_review"?"Operations record awaiting independent review":overdue?"Operations record overdue":`${item.priority} priority operations record`,owner:item.ownerLabel,urgency:overdue||item.priority==="critical"?"urgent":"action",href:`/app/operations/${encodeURIComponent(item.id)}`,dueDate:item.dueDate});
   }
   const rank = {urgent:0, action:1, upcoming:2};
   return result.sort((a,b) => rank[a.urgency] - rank[b.urgency] || (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999") || a.id.localeCompare(b.id));

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { listOperationsCases } from "@/lib/data/medical-operations";
 import type { LucideIcon } from "lucide-react";
 import { Activity, AlertTriangle, CheckCircle2, ClipboardList, FileUp, FlaskConical, Plus, ScanLine, Sparkles, TestTube2, Warehouse } from "lucide-react";
 import { MetricCard } from "@/components/app/metric-card";
@@ -18,13 +19,13 @@ type QuickAction = [label: string, href: string, icon: LucideIcon];
 
 export default async function DashboardPage() {
   const identity = await requireWorkspaceIdentity();
-  const [experiments, samples, inventory, equipment, tasks, reports, activity] = await Promise.all([
-    listExperiments(identity), listSamples(identity), listInventory(identity), listEquipment(identity), listLabTasks(identity), listReportsForAttention(identity), listActivity(identity),
+  const [experiments, samples, inventory, equipment, tasks, reports, activity, operations] = await Promise.all([
+    listExperiments(identity), listSamples(identity), listInventory(identity), listEquipment(identity), listLabTasks(identity), listReportsForAttention(identity), listActivity(identity), listOperationsCases(identity),
   ]);
   const running = experiments.filter((experiment) => experiment.status === "Running");
   const review = experiments.filter((experiment) => experiment.status === "Under review").length + reports.filter((report) => report.status === "Ready for review").length;
   const overdue = tasks.filter((task) => isOverdue(task.dueDate, task.status));
-  const attention = buildAttentionQueue({ tasks, samples, inventory, equipment, experiments, reports });
+  const attention = buildAttentionQueue({ tasks, samples, inventory, equipment, experiments, reports, operations });
   const sampleAttention = attention.filter(item => item.category === "samples" && item.urgency === "urgent");
   const priorityRank = { Critical: 0, High: 1, Medium: 2, Low: 3 } as const;
   const priorityTasks = tasks.filter((task) => task.status !== "Completed").sort((a, b) => {

@@ -1,0 +1,1220 @@
+{
+  "version": 1,
+  "reviewedOn": "2026-11-17",
+  "sources": {
+    "qmsr": {
+      "title": "QMSR / ISO 13485:2016 framework",
+      "url": "https://www.fda.gov/medical-devices/postmarket-requirements-devices/quality-management-system-regulation-qmsr",
+      "kind": "Regulation framework"
+    },
+    "records": {
+      "title": "QMSR final rule: 21 CFR 820.35 and 820.45",
+      "url": "https://www.fda.gov/media/177022/download",
+      "kind": "Regulation"
+    },
+    "mdr": {
+      "title": "Manufacturer medical-device reporting",
+      "url": "https://www.fda.gov/medical-devices/postmarket-requirements-devices/mandatory-reporting-requirements-manufacturers-importers-and-device-user-facilities",
+      "kind": "FDA reporting overview"
+    },
+    "recall": {
+      "title": "Corrections, removals, and recalls",
+      "url": "https://www.fda.gov/medical-devices/postmarket-requirements-devices/recalls-corrections-and-removals-devices",
+      "kind": "FDA regulatory overview"
+    },
+    "registration": {
+      "title": "Establishment registration and device listing",
+      "url": "https://www.fda.gov/medical-devices/how-study-and-market-your-device/device-registration-and-listing",
+      "kind": "FDA regulatory overview"
+    },
+    "udi": {
+      "title": "Unique device identification system",
+      "url": "https://www.fda.gov/medical-devices/device-advice-comprehensive-regulatory-assistance/unique-device-identification-system-udi-system",
+      "kind": "FDA regulatory overview"
+    },
+    "part11": {
+      "title": "Part 11 scope and application",
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/part-11-electronic-records-electronic-signatures-scope-and-application",
+      "kind": "Nonbinding guidance"
+    },
+    "csa": {
+      "title": "Computer software assurance, February 2026",
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/computer-software-assurance-production-and-quality-management-system-software",
+      "kind": "Nonbinding guidance"
+    },
+    "cyber": {
+      "title": "Device cybersecurity, February 2026",
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/cybersecurity-medical-devices-quality-management-system-considerations-and-content-premarket",
+      "kind": "Guidance; references FD&C Act 524B"
+    },
+    "pathway": {
+      "title": "Study and market a medical device",
+      "url": "https://www.fda.gov/medical-devices/device-advice-comprehensive-regulatory-assistance/how-study-and-market-your-device",
+      "kind": "FDA regulatory overview"
+    },
+    "databases": {
+      "title": "FDA medical-device databases",
+      "url": "https://www.fda.gov/medical-devices/device-advice-comprehensive-regulatory-assistance/medical-device-databases",
+      "kind": "Research resource"
+    },
+    "clinical": {
+      "title": "IDE responsibilities, IRB and informed consent",
+      "url": "https://www.fda.gov/medical-devices/investigational-device-exemption-ide/ide-responsibilities",
+      "kind": "FDA regulatory overview"
+    }
+  },
+  "workflows": [
+    {
+      "key": "quality-governance",
+      "version": 1,
+      "title": "Quality governance & management review",
+      "area": "Quality system",
+      "applicability": "QMS scope and manufacturer role determine applicability",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Record responsibilities, quality objectives, review inputs, decisions, and follow-through.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "scope",
+          "label": "QMS scope, sites, and responsibilities",
+          "required": true
+        },
+        {
+          "key": "inputs",
+          "label": "Management-review inputs and quality metrics",
+          "required": true
+        },
+        {
+          "key": "decisions",
+          "label": "Decisions, resources, and accountable owners",
+          "required": true
+        },
+        {
+          "key": "followup",
+          "label": "Prior actions and effectiveness follow-up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "document-control",
+      "version": 1,
+      "title": "Document & record control",
+      "area": "Quality system",
+      "applicability": "For controlled quality documents and required records",
+      "sourceKeys": [
+        "qmsr",
+        "part11"
+      ],
+      "summary": "Control document versions, approvals, distribution, retention, and reliable retrieval.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "document",
+          "label": "Document ID, version, and change rationale",
+          "required": true
+        },
+        {
+          "key": "review",
+          "label": "Review and approval responsibilities",
+          "required": true
+        },
+        {
+          "key": "distribution",
+          "label": "Effective date, distribution, and obsolete-copy controls",
+          "required": true
+        },
+        {
+          "key": "retention",
+          "label": "Retention rationale, access, backup, and retrieval test",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "training",
+      "version": 1,
+      "title": "Training & competence",
+      "area": "Quality system",
+      "applicability": "Competence requirements follow each role and task",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Connect procedure revisions to training, competence checks, and retraining.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "person",
+          "label": "Person or role and assigned activity",
+          "required": true
+        },
+        {
+          "key": "procedure",
+          "label": "Procedure and exact revision",
+          "required": true
+        },
+        {
+          "key": "training",
+          "label": "Training method, completion date, and trainer",
+          "required": true
+        },
+        {
+          "key": "competence",
+          "label": "Competence assessment and results",
+          "required": true
+        },
+        {
+          "key": "retraining",
+          "label": "Retraining triggers and next review",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "supplier-qualification",
+      "version": 1,
+      "title": "Supplier qualification & monitoring",
+      "area": "Supply chain",
+      "applicability": "Risk-based controls for purchased products and outsourced processes",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Document supplier risk, evaluation, purchasing requirements, and ongoing performance.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "supplier",
+          "label": "Supplier identity and supplied product/process",
+          "required": true
+        },
+        {
+          "key": "risk",
+          "label": "Supplier risk and selection criteria",
+          "required": true
+        },
+        {
+          "key": "evaluation",
+          "label": "Evaluation or audit results and approval decision",
+          "required": true
+        },
+        {
+          "key": "requirements",
+          "label": "Purchasing specifications and quality agreement",
+          "required": true
+        },
+        {
+          "key": "monitoring",
+          "label": "Monitoring results, re-evaluation date, and escalation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "design-change",
+      "version": 1,
+      "title": "Design transfer & change control",
+      "area": "Design and risk",
+      "applicability": "Design/development applicability and exemptions require review",
+      "sourceKeys": [
+        "qmsr",
+        "pathway"
+      ],
+      "summary": "Assess affected designs, risks, verification, transfer, and regulatory consequences.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "change",
+          "label": "Change description, rationale, and affected configurations",
+          "required": true
+        },
+        {
+          "key": "impact",
+          "label": "Affected requirements, risks, lots, procedures, and training",
+          "required": true
+        },
+        {
+          "key": "regulatory",
+          "label": "Regulatory impact and submission assessment",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Verification/validation plan and results",
+          "required": true
+        },
+        {
+          "key": "implementation",
+          "label": "Transfer, approvals, implementation, and effectiveness",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "risk-management",
+      "version": 1,
+      "title": "Risk register & control verification",
+      "area": "Design and risk",
+      "applicability": "Risk management across the applicable product lifecycle",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Track a hazard, its controls, residual risk, and production feedback.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "hazard",
+          "label": "Hazard, hazardous situation, and sequence of events",
+          "required": true
+        },
+        {
+          "key": "assessment",
+          "label": "Severity, probability, and justified acceptance criteria",
+          "required": true
+        },
+        {
+          "key": "controls",
+          "label": "Risk controls and linked design/process requirements",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Control verification and residual-risk assessment",
+          "required": true
+        },
+        {
+          "key": "feedback",
+          "label": "Production/post-production signals and review decision",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "production-release",
+      "version": 1,
+      "title": "Production history & release review",
+      "area": "Production",
+      "applicability": "For devices/batches within manufacturing scope",
+      "sourceKeys": [
+        "qmsr",
+        "records"
+      ],
+      "summary": "Assemble device history, acceptance, labeling, deviations, and authorized disposition.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device, configuration, UDI/other ID, and lot/serial",
+          "required": true
+        },
+        {
+          "key": "production",
+          "label": "Manufacturing dates, quantities, and source materials",
+          "required": true
+        },
+        {
+          "key": "acceptance",
+          "label": "In-process/final inspection and acceptance results",
+          "required": true
+        },
+        {
+          "key": "deviations",
+          "label": "Nonconformances, rework, and disposition",
+          "required": true
+        },
+        {
+          "key": "labeling",
+          "label": "Label/packaging revision and inspection",
+          "required": true
+        },
+        {
+          "key": "release",
+          "label": "Release decision, accountable person, and date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "process-validation",
+      "version": 1,
+      "title": "Process validation & revalidation",
+      "area": "Production",
+      "applicability": "When process results cannot be fully verified subsequently",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Plan validation, acceptance criteria, execution, deviations, and revalidation.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "process",
+          "label": "Process, intended result, and validation rationale",
+          "required": true
+        },
+        {
+          "key": "plan",
+          "label": "Protocol, risk, sampling, and acceptance criteria",
+          "required": true
+        },
+        {
+          "key": "execution",
+          "label": "Installation/operation/performance qualification as applicable",
+          "required": true
+        },
+        {
+          "key": "results",
+          "label": "Results, deviations, and disposition",
+          "required": true
+        },
+        {
+          "key": "maintenance",
+          "label": "Validated state, change controls, and revalidation triggers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "equipment-control",
+      "version": 1,
+      "title": "Calibration & equipment impact",
+      "area": "Production",
+      "applicability": "For equipment affecting product quality or acceptance",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Capture calibration/maintenance and assess product impact from out-of-tolerance equipment.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "equipment",
+          "label": "Instrument ID, location, and intended use",
+          "required": true
+        },
+        {
+          "key": "standards",
+          "label": "Method, reference standards, and traceability",
+          "required": true
+        },
+        {
+          "key": "results",
+          "label": "Calibration/maintenance date, performer, and results",
+          "required": true
+        },
+        {
+          "key": "impact",
+          "label": "Out-of-tolerance assessment and affected records/lots",
+          "required": true
+        },
+        {
+          "key": "schedule",
+          "label": "Next due date, status, and follow-up actions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "environment",
+      "version": 1,
+      "title": "Environment & contamination control",
+      "area": "Production",
+      "applicability": "Where environment, cleanliness, or contamination affects quality",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Define environmental controls, monitoring, excursions, and product impact.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "environment",
+          "label": "Area/process and required environmental conditions",
+          "required": true
+        },
+        {
+          "key": "controls",
+          "label": "Cleanliness, contamination, personnel, and facility controls",
+          "required": true
+        },
+        {
+          "key": "monitoring",
+          "label": "Monitoring method, limits, frequency, and results",
+          "required": true
+        },
+        {
+          "key": "excursion",
+          "label": "Excursions, product assessment, and corrective follow-up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "labeling-packaging",
+      "version": 1,
+      "title": "Labeling & packaging controls",
+      "area": "Production",
+      "applicability": "21 CFR 820.45 and applicable device-labeling rules",
+      "sourceKeys": [
+        "records",
+        "udi"
+      ],
+      "summary": "Review identity, expiry, instructions, integrity, mix-up prevention, and release.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "identity",
+          "label": "Device ID/UDI and approved label/packaging revisions",
+          "required": true
+        },
+        {
+          "key": "content",
+          "label": "Expiry, storage, handling, and processing instructions",
+          "required": true
+        },
+        {
+          "key": "integrity",
+          "label": "Packaging integrity and inspection results",
+          "required": true
+        },
+        {
+          "key": "mixups",
+          "label": "Line clearance, mix-up prevention, and reconciliation",
+          "required": true
+        },
+        {
+          "key": "release",
+          "label": "Label/packaging release authorization and date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "distribution",
+      "version": 1,
+      "title": "Storage & distribution traceability",
+      "area": "Supply chain",
+      "applicability": "Preservation, identification, and traceability as applicable",
+      "sourceKeys": [
+        "qmsr",
+        "records"
+      ],
+      "summary": "Trace storage conditions, shipped lots, destinations, and recovery capability.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device/UDI, lot/serial, and quantities",
+          "required": true
+        },
+        {
+          "key": "conditions",
+          "label": "Storage/handling requirements and condition records",
+          "required": true
+        },
+        {
+          "key": "shipment",
+          "label": "Shipment date, destination, consignee, and trace records",
+          "required": true
+        },
+        {
+          "key": "recovery",
+          "label": "Returns, stock status, and recall traceability assessment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "nonconformance",
+      "version": 1,
+      "title": "Nonconformance & disposition",
+      "area": "Quality system",
+      "applicability": "For nonconforming product/process outputs",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Control containment, impact, disposition, rework, and verified acceptance.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "issue",
+          "label": "Nonconformance, specification, and affected device/lot",
+          "required": true
+        },
+        {
+          "key": "containment",
+          "label": "Quarantine, segregation, and immediate containment",
+          "required": true
+        },
+        {
+          "key": "assessment",
+          "label": "Scope, product risk, and investigation",
+          "required": true
+        },
+        {
+          "key": "disposition",
+          "label": "Authorized disposition and any concession rationale",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Rework/reinspection results and CAPA escalation decision",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "capa",
+      "version": 1,
+      "title": "CAPA & effectiveness",
+      "area": "Quality system",
+      "applicability": "Corrective/preventive action proportional to risk and cause",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Investigate causes, implement actions, and verify effectiveness before closure.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "problem",
+          "label": "Problem statement, data source, and containment",
+          "required": true
+        },
+        {
+          "key": "cause",
+          "label": "Root-cause investigation and supporting evidence",
+          "required": true
+        },
+        {
+          "key": "actions",
+          "label": "Action plan, owners, due dates, and change links",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Verification/validation that actions do not create adverse effects",
+          "required": true
+        },
+        {
+          "key": "effectiveness",
+          "label": "Effectiveness criteria, observation period, results, and conclusion",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "complaint",
+      "version": 1,
+      "title": "Complaint intake & investigation",
+      "area": "Postmarket",
+      "applicability": "Complaint handling and applicable 21 CFR 820.35 records",
+      "sourceKeys": [
+        "records",
+        "mdr"
+      ],
+      "summary": "Capture device/event facts, investigate, assess reportability, and follow through.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device name, UDI/UPC or other identification, lot/serial",
+          "required": true
+        },
+        {
+          "key": "received",
+          "label": "Date complaint received and event date if known",
+          "required": true
+        },
+        {
+          "key": "complainant",
+          "label": "Complainant name/contact reference; protect personal data in controlled records",
+          "required": true
+        },
+        {
+          "key": "description",
+          "label": "Nature and details of complaint",
+          "required": true
+        },
+        {
+          "key": "investigation",
+          "label": "Investigation dates/results, or documented reason and responsible decision not to investigate",
+          "required": true
+        },
+        {
+          "key": "reportability",
+          "label": "MDR assessment, rationale, awareness date, and reporting follow-up",
+          "required": true
+        },
+        {
+          "key": "response",
+          "label": "Correction/CAPA, reply to complainant, and responsible reviewer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "mdr",
+      "version": 1,
+      "title": "MDR assessment & submission tracking",
+      "area": "Postmarket",
+      "applicability": "Manufacturer/importer role and reportability determine requirements",
+      "sourceKeys": [
+        "mdr"
+      ],
+      "summary": "Track human reportability decisions, regulatory clocks, submissions, and follow-up.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "event",
+          "label": "Device/event, awareness date, and reporter role",
+          "required": true
+        },
+        {
+          "key": "assessment",
+          "label": "Death/serious-injury/malfunction evaluation and rationale",
+          "required": true
+        },
+        {
+          "key": "clock",
+          "label": "Applicable 30-calendar-day or 5-work-day assessment; confirm the regulatory deadline",
+          "required": true
+        },
+        {
+          "key": "submission",
+          "label": "Submission date, eMDR acknowledgement/reference, or justified non-reportability",
+          "required": true
+        },
+        {
+          "key": "followup",
+          "label": "Additional information, supplemental reports, and responsible follow-up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "recall",
+      "version": 1,
+      "title": "Corrections, removals & recall coordination",
+      "area": "Postmarket",
+      "applicability": "21 CFR 806 reporting and exceptions require assessment",
+      "sourceKeys": [
+        "recall"
+      ],
+      "summary": "Connect health-risk assessment, affected distribution, notification, and effectiveness.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "action",
+          "label": "Correction/removal description, initiation date, and device IDs",
+          "required": true
+        },
+        {
+          "key": "risk",
+          "label": "Health-risk and reportability assessment with rationale",
+          "required": true
+        },
+        {
+          "key": "scope",
+          "label": "Affected lots/serials, quantities, and consignees",
+          "required": true
+        },
+        {
+          "key": "report",
+          "label": "10-working-day reporting assessment, submission reference, or documented exception",
+          "required": true
+        },
+        {
+          "key": "communications",
+          "label": "Approved communications and execution records",
+          "required": true
+        },
+        {
+          "key": "effectiveness",
+          "label": "Reconciliation, effectiveness checks, and closure assessment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "postmarket",
+      "version": 1,
+      "title": "Postmarket feedback & trend review",
+      "area": "Postmarket",
+      "applicability": "Feedback/trending plus device-specific postmarket obligations",
+      "sourceKeys": [
+        "qmsr",
+        "mdr"
+      ],
+      "summary": "Review complaint, service, and field data for risk and CAPA signals.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "sources",
+          "label": "Feedback sources, population, and observation period",
+          "required": true
+        },
+        {
+          "key": "method",
+          "label": "Trend method, denominators, thresholds, and limitations",
+          "required": true
+        },
+        {
+          "key": "signals",
+          "label": "Findings, risk impact, and reportability assessments",
+          "required": true
+        },
+        {
+          "key": "actions",
+          "label": "Escalation/CAPA/change actions and follow-up review",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "audit",
+      "version": 1,
+      "title": "Internal/supplier audit & findings",
+      "area": "Quality system",
+      "applicability": "Audit program within applicable QMS scope",
+      "sourceKeys": [
+        "qmsr"
+      ],
+      "summary": "Plan audits, preserve findings, and track responses and verified follow-up.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "plan",
+          "label": "Audit scope, criteria, schedule, and independence",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Reviewed records, interviews, and objective evidence",
+          "required": true
+        },
+        {
+          "key": "findings",
+          "label": "Findings, requirement mapping, and significance",
+          "required": true
+        },
+        {
+          "key": "response",
+          "label": "Corrections/CAPA, owners, and due dates",
+          "required": true
+        },
+        {
+          "key": "followup",
+          "label": "Follow-up verification and audit conclusions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "registration",
+      "version": 1,
+      "title": "Registration, listing & authorization",
+      "area": "Regulatory",
+      "applicability": "Depends on establishment activities, device, and exemptions",
+      "sourceKeys": [
+        "registration",
+        "pathway"
+      ],
+      "summary": "Track legal manufacturer role, marketing pathway, listing, and annual renewal.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "role",
+          "label": "Establishment activities, sites, and responsible legal entities",
+          "required": true
+        },
+        {
+          "key": "classification",
+          "label": "Device description, product code/class, and exemptions rationale",
+          "required": true
+        },
+        {
+          "key": "authorization",
+          "label": "Applicable marketing authorization and identifier, or exemption rationale",
+          "required": true
+        },
+        {
+          "key": "listing",
+          "label": "Registration/listing identifiers and verification evidence",
+          "required": true
+        },
+        {
+          "key": "renewal",
+          "label": "Annual review/renewal responsibility and due dates",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "udi",
+      "version": 1,
+      "title": "UDI & device-identification record",
+      "area": "Regulatory",
+      "applicability": "Device labeler obligations and exceptions require review",
+      "sourceKeys": [
+        "udi",
+        "records"
+      ],
+      "summary": "Record identifiers, packaging hierarchy, labeling, and applicable GUDID submissions.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device/model/version and responsible labeler",
+          "required": true
+        },
+        {
+          "key": "identifiers",
+          "label": "UDI-DI, production identifiers, and applicable exceptions",
+          "required": true
+        },
+        {
+          "key": "packaging",
+          "label": "Packaging levels and direct-marking assessment",
+          "required": true
+        },
+        {
+          "key": "gudid",
+          "label": "GUDID data review, submission reference/status, or exception rationale",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Label/identifier verification and change controls",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "software-assurance",
+      "version": 1,
+      "title": "QMS software assurance & electronic records",
+      "area": "Digital systems",
+      "applicability": "For production/QMS software; Part 11 scope is separately assessed",
+      "sourceKeys": [
+        "csa",
+        "part11"
+      ],
+      "summary": "Define intended use, risk-based assurance, record controls, and change verification.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "system",
+          "label": "System/version, intended use, and regulated process",
+          "required": true
+        },
+        {
+          "key": "risk",
+          "label": "Process risk, failure impact, and assurance rationale",
+          "required": true
+        },
+        {
+          "key": "assurance",
+          "label": "Assurance activities, objective results, and unresolved issues",
+          "required": true
+        },
+        {
+          "key": "records",
+          "label": "Part 11 applicability, access, record history, retention, and signature assessment",
+          "required": true
+        },
+        {
+          "key": "release",
+          "label": "Release decision, backup/restore evidence, and change controls",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "cybersecurity",
+      "version": 1,
+      "title": "Device cybersecurity & vulnerability response",
+      "area": "Digital systems",
+      "applicability": "For devices with cybersecurity risk; 524B applies to cyber devices",
+      "sourceKeys": [
+        "cyber"
+      ],
+      "summary": "Track threat models, components, vulnerabilities, remediation, and lifecycle evidence.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device/software version and cybersecurity/524B applicability",
+          "required": true
+        },
+        {
+          "key": "architecture",
+          "label": "Threat model, security architecture, and risk controls",
+          "required": true
+        },
+        {
+          "key": "components",
+          "label": "SBOM/component inventory and vulnerability assessment",
+          "required": true
+        },
+        {
+          "key": "verification",
+          "label": "Security verification and unresolved anomalies",
+          "required": true
+        },
+        {
+          "key": "response",
+          "label": "Monitoring, coordinated disclosure, patches, and support lifecycle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "servicing",
+      "version": 1,
+      "title": "Installation & servicing record",
+      "area": "Postmarket",
+      "applicability": "Where installation or servicing activities apply",
+      "sourceKeys": [
+        "records",
+        "qmsr"
+      ],
+      "summary": "Preserve device identity, service date/personnel, work, testing, and complaint escalation.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "device",
+          "label": "Device name, UDI/UPC/other ID, and lot/serial",
+          "required": true
+        },
+        {
+          "key": "service",
+          "label": "Service/installation date and individuals performing work",
+          "required": true
+        },
+        {
+          "key": "work",
+          "label": "Reported issue and service performed",
+          "required": true
+        },
+        {
+          "key": "testing",
+          "label": "Test and inspection data with acceptance conclusion",
+          "required": true
+        },
+        {
+          "key": "escalation",
+          "label": "Complaint/MDR assessment and follow-up actions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "clinical",
+      "version": 1,
+      "title": "Clinical investigation & study operations",
+      "area": "Regulatory",
+      "applicability": "Only where human-subject research/clinical investigation applies",
+      "sourceKeys": [
+        "clinical",
+        "pathway"
+      ],
+      "summary": "Track applicable study authorization, oversight, conduct, and safety reporting.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "study",
+          "label": "Protocol/version, investigational device, and study objective",
+          "required": true
+        },
+        {
+          "key": "authorization",
+          "label": "IDE/exemption/significant-risk assessment and regulatory status",
+          "required": true
+        },
+        {
+          "key": "oversight",
+          "label": "IRB, informed-consent controls, monitoring, and responsible personnel",
+          "required": true
+        },
+        {
+          "key": "evidence",
+          "label": "Study conduct, data integrity, and deviations",
+          "required": true
+        },
+        {
+          "key": "safety",
+          "label": "Safety reporting, device accountability, and closure obligations",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "product-safety",
+      "version": 1,
+      "title": "Product-specific safety & performance evidence",
+      "area": "Design and risk",
+      "applicability": "Requirements depend on intended use, materials, technology, and risk",
+      "sourceKeys": [
+        "pathway",
+        "databases"
+      ],
+      "summary": "Plan applicable performance, biocompatibility, sterility, usability, and shelf-life evidence.",
+      "reviewedOn": "2026-11-17",
+      "fields": [
+        {
+          "key": "applicability",
+          "label": "Applicability and regulatory rationale",
+          "required": true
+        },
+        {
+          "key": "product_scope",
+          "label": "Intended use, users, environment, and product configuration",
+          "required": true
+        },
+        {
+          "key": "standards",
+          "label": "Applicable safety/performance standards and justified exclusions",
+          "required": true
+        },
+        {
+          "key": "plan",
+          "label": "Methods, representative articles, and acceptance criteria",
+          "required": true
+        },
+        {
+          "key": "results",
+          "label": "Performance, usability, biocompatibility, sterility or shelf-life results as applicable",
+          "required": true
+        },
+        {
+          "key": "gaps",
+          "label": "Deviations, remaining gaps, risk assessment, and reviewer conclusion",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
