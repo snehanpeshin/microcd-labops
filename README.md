@@ -53,3 +53,16 @@ npm run build
 - Evidence packets are immutable traceability snapshots; they are not represented as regulated electronic signatures or independent technical approvals.
 
 See [architecture](docs/ARCHITECTURE.md), [security](docs/SECURITY.md), [deployment](docs/DEPLOYMENT.md), and [launch checklist](docs/LAUNCH_CHECKLIST.md).
+
+## AWS consolidation preparation
+
+The existing application is hosted on Amplify and still uses Supabase for identity, database
+and private file operations. The [AWS consolidation plan](docs/AWS_CONSOLIDATION_PLAN.md)
+maps the staged path to RDS PostgreSQL, Cognito and S3, with tenant-isolation, restore and
+rollback gates. No production data or users have been migrated by the CSV preview update.
+
+CSV previews and server imports now share structural parsing, including quoted/multiline
+cells, normalized unique headers, required columns, consistent row widths and the 250-row limit.
+Preview reads cannot overwrite a newer file selection. Field validation and role checks still
+run on the server before records are written. GitHub and Amplify run lint, type checks, tests
+and a production build with Node 22 before publication.

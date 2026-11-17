@@ -3,9 +3,13 @@ frontend:
   phases:
     preBuild:
       commands:
+        - nvm install 22
         - npm ci
     build:
       commands:
+        - npm run lint
+        - npm run typecheck
+        - npm test
         - env | grep -E '^(NEXT_PUBLIC_|SUPABASE_SERVICE_ROLE_KEY=|RESEND_|LEAD_NOTIFICATION_EMAIL=|EMAIL_PREVIEW_MODE=|CRON_SECRET=|OPENAI_|STRIPE_)' >> .env.production
         - npm run build
   artifacts:

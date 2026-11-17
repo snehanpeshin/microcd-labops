@@ -1,10 +1,10 @@
 # Deployment
 
-## Recommended path: Vercel + Supabase
+## Existing Amplify application and Supabase setup
 
 1. Push this directory to a private Git repository.
 2. Create a Supabase project and apply the migration in `supabase/migrations`.
-3. Create a Vercel project with this repository as its root.
+3. Use the existing Amplify application for this repository. Keep its production domain and environment configuration.
 4. Add every variable from `.env.example`; keep service-role and provider keys scoped to server environments.
 5. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS URL.
 6. In Supabase **Authentication → URL Configuration**, set the Site URL to `https://labops.microcdlabs.com` and add `https://labops.microcdlabs.com/auth/callback` to Redirect URLs. Keep the Amplify callback URL only if that hostname is still used for testing.
@@ -32,4 +32,8 @@ Apply all migrations to staging first, including `202607140003_controlled_record
 
 ## AWS Amplify
 
-Amplify can host Next.js, but Vercel is the lower-friction launch path for this App Router project. If Amplify is required, use Node 20+, set the same environment variables in Amplify Hosting, verify support for Next.js route handlers and proxy behavior, and test Stripe raw-body webhook handling before production cutover.
+The existing application uses Amplify. Its build configuration selects Node 22 and runs lint,
+type checks, tests and the production build. Preserve the server-only environment configuration,
+verify route handlers and proxy behavior, and test Stripe raw-body webhook handling after
+deployment changes. See [AWS consolidation](AWS_CONSOLIDATION_PLAN.md) before replacing
+Supabase; changing hosting configuration does not migrate authentication, database policies or files.
