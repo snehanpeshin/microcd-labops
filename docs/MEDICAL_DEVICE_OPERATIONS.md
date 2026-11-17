@@ -29,7 +29,7 @@ FDA's Quality Management System Regulation (QMSR), effective February 2, 2026, i
 - An evidence-passport JSON export with source references, connected follow-ups, recent event snapshots, and a documented SHA-256 digest. The digest detects byte changes; it does not prove authorship or constitute a digital signature.
 - Integration of open high-priority, overdue and review operations records into the existing attention center once persistence is activated.
 
-Production database activation requires explicit approval. Until the additive migration is approved and applied, the dashboards show an activation notice, existing source-registry counts remain live, templates can be inspected, and creation/review actions fail closed. The migration adds three tables, five RLS policies, two trigger functions in a private schema, two triggers, indexes, and 26 public-reference workflow definitions. It does not replay earlier migrations or modify existing business records.
+Production database activation was explicitly approved and applied on November 17, 2026 (migration 20261117182144). Availability checks still fail closed if the catalog is unavailable. The migration adds three tables, five RLS policies, two trigger functions in a private schema, two triggers, indexes, and 26 public-reference workflow definitions. It does not replay earlier migrations or modify existing business records.
 
 ## Important distinctions
 
@@ -37,7 +37,7 @@ The workflow names and mandatory review fields are LabOps implementation choices
 
 This release does not implement legally equivalent Part 11 electronic signatures, claim computer-software-assurance completion, automatically decide reportability, submit FDA reports, automatically approve suppliers, or enforce device-build release through these case records. Existing supplier/build status controls remain their own workflows. Evidence links are references to source records, not frozen copies of every source; use existing immutable experiment evidence packets for frozen execution evidence.
 
-A reviewed closure is a human workflow decision. It does not establish that a device, QMS, record set, or software system satisfies all applicable regulatory requirements. Production use as a regulated record system requires documented intended use, procedures, role provisioning, retention/backup/restore decisions, applicable Part 11 controls, and risk-based assurance. Database-level policy/trigger verification remains an activation gate after the production migration is authorized.
+A reviewed closure is a human workflow decision. It does not establish that a device, QMS, record set, or software system satisfies all applicable regulatory requirements. Production use as a regulated record system requires documented intended use, procedures, role provisioning, retention/backup/restore decisions, applicable Part 11 controls, and risk-based assurance. Transactional database verification confirmed draft creation, schedule updates, revision history, stale-write rejection, and incomplete-submission rejection; verification records were rolled back.
 
 ## Reporting-clock handling
 
@@ -47,7 +47,7 @@ Manufacturer MDR reports generally use 30 calendar days after awareness for repo
 
 | Opportunity | Value | Current state / next gate |
 |---|---|---|
-| Connected device evidence passport | Carry investigation context, revision history and supporting evidence across teams | Export code and linked-origin model included; persistence pending activation; qualified assurance before regulated reliance |
+| Connected device evidence passport | Carry investigation context, revision history and supporting evidence across teams | Export code and linked-origin model included; persistence activated; qualified assurance before regulated reliance |
 | Automatic change-impact graph | Show which requirements, methods, lots, training, risks and release decisions are affected by a changed source | Origin/follow-up links included; automatic traversal and controlled change impact remain future work |
 | Recall rehearsal | Reconstruct affected lots/builds/shipments, reconcile quantities and record a simulated effectiveness exercise | Existing genealogy sources and recall template provide the foundation; simulation engine and verified coverage remain future work |
 | Release rehearsal | Explain each unmet release prerequisite with the exact underlying evidence and accountable owner | Existing experiment readiness and new operations dashboard are separate foundations; native production release enforcement requires a defined, validated integration |
@@ -71,3 +71,9 @@ A defensible differentiation is evidence continuity from engineering through qua
 - [Device cybersecurity guidance, February 2026](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/cybersecurity-medical-devices-quality-management-system-considerations-and-content-premarket)
 - [IDE responsibilities](https://www.fda.gov/medical-devices/investigational-device-exemption-ide/ide-responsibilities)
 - [FDA device databases: classification, authorizations, recalls, MAUDE, standards and TPLC](https://www.fda.gov/medical-devices/device-advice-comprehensive-regulatory-assistance/medical-device-databases)
+
+## Main dashboard, timeline, and team access
+
+The main `/app` dashboard now includes all nine operations areas and a due-date milestone timeline. The same timeline appears in the operations hub. Users can select 30/90-day windows, move between periods, filter by area, and find unscheduled open records. Owner/admin/engineer roles can edit dates with a required reason; submitted and closed records remain locked. Updates use organization scope, optimistic revision matching, and existing database history triggers. Dates are UTC calendar dates; this is a milestone plot, not an inferred duration or automatic regulatory-deadline calculator.
+
+Team & access links to Settings, where owners/admins can invite members as admin, engineer, reviewer, or viewer. Role descriptions explain the edit/review boundaries. This release does not send invitations automatically or change existing memberships.

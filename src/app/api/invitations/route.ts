@@ -13,7 +13,7 @@ const issueSchema = z.object({ email: z.string().email().max(254), role: z.enum(
 export async function POST(request: Request) {
   const identity = await getWorkspaceIdentity();
   if (!identity) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-  if (!can(identity.role, "members:manage")) return NextResponse.json({ error: "Administrator permission required" }, { status: 403 });
+  if (identity.demo || !can(identity.role, "members:manage")) return NextResponse.json({ error: "Administrator permission required" }, { status: 403 });
   const rateLimit = await enforceRateLimit(`${identity.organizationId}:${identity.userId}`, "invitation_send", 20, 3600);
   if (!rateLimit.allowed) return NextResponse.json({ error: "Invitation limit reached. Try again later." }, { status: 429 });
   const parsed = issueSchema.safeParse(await request.json().catch(() => null));
@@ -32,7 +32,7 @@ const revokeSchema = z.object({ id: z.string().uuid() });
 export async function DELETE(request: Request) {
   const identity = await getWorkspaceIdentity();
   if (!identity) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-  if (!can(identity.role, "members:manage")) return NextResponse.json({ error: "Administrator permission required" }, { status: 403 });
+  if (identity.demo || !can(identity.role, "members:manage")) return NextResponse.json({ error: "Administrator permission required" }, { status: 403 });
   const parsed = revokeSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid invitation" }, { status: 400 });
   const admin = createAdminClient();

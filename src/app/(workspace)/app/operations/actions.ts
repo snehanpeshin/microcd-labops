@@ -58,3 +58,21 @@ export async function updateOperationsCase(_previous:OperationsActionState,form:
  }catch(error){return failure(error);}
  refresh(id);redirect(`/app/operations/${id}`);
 }
+
+export async function rescheduleOperationsCase(_previous:OperationsActionState,form:FormData):Promise<OperationsActionState>{
+ try {
+  const {identity,db}=await context();
+  if(!can(identity.role,"lab:write"))throw Error("Your role cannot edit the timeline.");
+  const id=z.string().uuid().parse(text(form,"caseId"));
+  const revision=z.coerce.number().int().positive().parse(text(form,"revision"));
+  const dueDate=z.string().date().or(z.literal("")).parse(text(form,"dueDate"));
+  const reason=z.string().min(10).max(1000).parse(text(form,"reason"));
+  const current=await getOperationsCase(identity,id);
+  if(!current)throw Error("Record not found.");
+  if(current.revision!==revision)throw Error("This record has changed. Reload before editing the schedule.");
+  if(current.state==="closed"||current.state==="in_review")throw Error("Reviewed or submitted records cannot be rescheduled.");
+  const {data,error}=await db.from("medical_operations_cases").update({due_date:dueDate||null,state:current.state==="changes_requested"?"active":current.state,decision_note:`Schedule changed: ${reason}`,revision}).eq("id",id).eq("organization_id",identity.organizationId).eq("revision",revision).select("id").maybeSingle();
+  if(error||!data)throw Error("The schedule could not be saved. Reload and check your access.");
+  refresh(id);return {success:"Schedule saved. The change is recorded in the history."};
+ }catch(error){return failure(error);}
+}

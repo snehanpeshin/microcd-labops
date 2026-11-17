@@ -2,10 +2,10 @@
 import { useActionState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
-export type OperationsActionState={error?:string};
+export type OperationsActionState={error?:string;success?:string};
 export function OperationsForm({action,children,className}:{action:(state:OperationsActionState,data:FormData)=>Promise<OperationsActionState>;children:ReactNode;className?:string}) {
  const [state,formAction]=useActionState(action,{});
- return <form action={formAction} className={className}>{state.error?<p role="alert" className="col-span-full rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{state.error}</p>:null}{children}</form>;
+ return <form action={formAction} className={className}>{state.success?<p role="status" className="col-span-full text-sm text-teal-800">{state.success}</p>:null}{state.error?<p role="alert" className="col-span-full rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{state.error}</p>:null}{children}</form>;
 }
 export function OperationsSubmit({intent,children,secondary=false}:{intent:string;children:ReactNode;secondary?:boolean}) {
  const {pending}=useFormStatus();
