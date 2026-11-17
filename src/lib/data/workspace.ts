@@ -67,3 +67,11 @@ export async function listActivity(identity: WorkspaceIdentity): Promise<Activit
   const result = await supabase.from("activity_log").select("id,record_id,action,record_type,summary,created_at,actor:profiles!activity_log_actor_profile_fkey(full_name)").eq("organization_id", identity.organizationId).order("created_at", { ascending: false }).limit(100);
   return requireData(result.data, result.error).map((row) => ({ id: String(row.id), recordId: row.record_id ?? undefined, actor: relatedName(row.actor, "System"), action: row.action, recordType: row.record_type, summary: row.summary, timestamp: row.created_at }));
 }
+
+/** Fetch only queue metadata, without report sections or acceptance-criteria payloads. */
+export async function listReportsForAttention(identity: WorkspaceIdentity): Promise<Pick<Report, "id" | "number" | "title" | "status" | "author" | "reviewer">[]> {
+  if (identity.demo) return demoReports.filter(report => report.status === "Ready for review" || report.status === "Changes requested");
+  const supabase = await createClient();
+  const result = await supabase.from("reports").select("id,number,title,status,author:profiles!reports_author_profile_fkey(full_name),reviewer:profiles!reports_reviewer_profile_fkey(full_name)").eq("organization_id",identity.organizationId).is("deleted_at",null).in("status",["ready_for_review","changes_requested"]).order("updated_at",{ascending:false});
+  return requireData(result.data,result.error).map(row => ({id:row.id,number:row.number,title:row.title,status:row.status === "ready_for_review" ? "Ready for review" : "Changes requested",author:relatedName(row.author,"Unknown"),reviewer:relatedName(row.reviewer,"Unassigned")}));
+}
