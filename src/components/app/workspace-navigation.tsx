@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { AlertTriangle, Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ChevronDown, ClipboardCheck, Compass, FileCheck2, FileText, FileUp, FlaskConical, FolderKanban, Gauge, GitBranch, ListTodo, Microscope, PackageSearch, Search, Settings, Sparkles, TestTube2, Warehouse } from "lucide-react";
+import { AlertTriangle, Activity, BarChart3, BookOpenCheck, Boxes, Braces, Building2, ChevronDown, ClipboardCheck, Compass, FileCheck2, FileText, FileUp, FlaskConical, FolderKanban, Gauge, GitBranch, ListTodo, Microscope, PackageSearch, Search, Settings, ShieldCheck, Sparkles, TestTube2, Warehouse } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = { href:string; label:string; shortLabel:string; icon:LucideIcon };
@@ -11,6 +11,7 @@ const navigationGroups: { label:string; primary?:boolean; items:NavigationItem[]
   { label:"Run", primary:true, items:[
     { href:"/app",label:"Dashboard",shortLabel:"Dashboard",icon:Gauge },
     { href:"/app/attention",label:"Attention Center",shortLabel:"Attention",icon:AlertTriangle },
+    { href:"/app/operations",label:"Medical-device Operations",shortLabel:"Operations",icon:ShieldCheck },
     { href:"/app/assistant",label:"AI Copilot",shortLabel:"AI Copilot",icon:Sparkles },
     { href:"/app/projects",label:"Projects",shortLabel:"Projects",icon:FolderKanban },
     { href:"/app/experiments",label:"Experiments",shortLabel:"Experiments",icon:FlaskConical },

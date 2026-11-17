@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { listOperationsCases } from "@/lib/data/medical-operations";
 import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { requireWorkspaceIdentity } from "@/lib/auth";
 import { listEquipment, listExperiments, listInventory, listLabTasks, listSamples } from "@/lib/data/lab-operations";
@@ -12,14 +13,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/ui/page-header";
 
-const categories = [{value:"tasks",label:"Tasks"}, {value:"samples",label:"Samples"}, {value:"inventory",label:"Inventory"}, {value:"equipment",label:"Equipment"}, {value:"reviews",label:"Reviews & exceptions"}];
+const categories = [{value:"operations",label:"Medical-device operations"}, {value:"tasks",label:"Tasks"}, {value:"samples",label:"Samples"}, {value:"inventory",label:"Inventory"}, {value:"equipment",label:"Equipment"}, {value:"reviews",label:"Reviews & exceptions"}];
 export default async function AttentionPage({searchParams}: {searchParams:Promise<{q?:string;category?:string;urgency?:string}>}) {
   const identity = await requireWorkspaceIdentity();
   const params = await searchParams;
-  const [tasks, samples, inventory, equipment, experiments, reports] = await Promise.all([
-    listLabTasks(identity), listSamples(identity), listInventory(identity), listEquipment(identity), listExperiments(identity), listReportsForAttention(identity),
+  const [tasks, samples, inventory, equipment, experiments, reports, operations] = await Promise.all([
+    listLabTasks(identity), listSamples(identity), listInventory(identity), listEquipment(identity), listExperiments(identity), listReportsForAttention(identity), listOperationsCases(identity),
   ]);
-  const queue = buildAttentionQueue({tasks, samples, inventory, equipment, experiments, reports});
+  const queue = buildAttentionQueue({tasks, samples, inventory, equipment, experiments, reports, operations});
   const query = params.q?.trim().toLowerCase();
   const shown = queue.filter(item => (!params.category || item.category === params.category) && (!params.urgency || item.urgency === params.urgency) && (!query || `${item.title} ${item.detail} ${item.owner}`.toLowerCase().includes(query)));
   return <>
