@@ -22,6 +22,21 @@ describe("file upload policy", () => {
     expect(() => validateUpload(new File([script], "payload.js", { type: "text/javascript" }), script)).toThrow("not allowed");
   });
 
+  it("accepts supported engineering snapshots and rejects arbitrary JSON", () => {
+    const encoder = new TextEncoder();
+    const date = "2026-11-26T12:00:00.000Z";
+    const snapshots = [
+      { schema: "microcd.modeler.project", version: 2, id: "design-1", name: "Design", updatedAt: date, features: [], layers: [] },
+      { schema: "microcd.analyzer.analysis", version: 1, experimentId: "run-1", experimentName: "Run", createdAt: date, demonstration: true, results: { endpoint: 1 } },
+    ];
+    for (const snapshot of snapshots) {
+      const bytes = encoder.encode(JSON.stringify(snapshot));
+      expect(validateUpload(new File([bytes], "snapshot.json"), bytes).contentType).toBe("application/json");
+    }
+    const unknown = encoder.encode('{"schema":"unknown","version":1}');
+    expect(() => validateUpload(new File([unknown], "snapshot.json", { type: "application/json" }), unknown)).toThrow("supported Modeler or Analyzer");
+  });
+
   it("enforces the documented byte limit", () => {
     expect(maxUploadBytes).toBe(25 * 1024 * 1024);
   });

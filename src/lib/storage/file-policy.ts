@@ -1,6 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
+import { describeEngineeringSnapshot } from "@/lib/engineering-handoff";
 
 const allowedMimeTypes = {
+  json: ["application/json", "application/octet-stream", ""],
   csv: ["text/csv", "application/csv", "text/plain"],
   txt: ["text/plain"],
   pdf: ["application/pdf"],
@@ -52,9 +54,18 @@ export function validateUpload(file: File, bytes: Uint8Array) {
   const permitted = allowedMimeTypes[extension] as readonly string[];
   if (!permitted.includes(file.type)) throw new Error("File extension and MIME type do not match");
   if (!signatureMatches(extension, bytes)) throw new Error("File content does not match its extension");
+  if (extension === "json") {
+    try {
+      describeEngineeringSnapshot(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+    } catch {
+      throw new Error("JSON must be a supported Modeler or Analyzer export");
+    }
+  }
+  const contentType = extension === "json" ? "application/json" : file.type;
   const safeName = sanitizeFilename(file.name);
   return {
     safeName,
+    contentType,
     checksum: createHash("sha256").update(bytes).digest("hex"),
     storageName: `${randomUUID()}-${safeName}`,
   };
